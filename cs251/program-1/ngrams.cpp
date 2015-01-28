@@ -22,50 +22,67 @@
 #include <stdlib.h>
 
 #define MAX_BUF 512
+#define debug 1
 
 typedef struct {
   char *word;
   int year;
   int numOccur;
   int numTexts;
-} wordLine;
+} ngramsData;
+
+typedef struct {
+  int numLines;
+} ngramsStats;
+
+/* functions  */
+ngramsData readData(ngramsData rawData[], ngramsStats *usefulData);
 
 int main (){
 
-  wordLine data[MAX_BUF];
+  ngramsData rawData[MAX_BUF];
+  ngramsStats usefulData;
 
   printf("\n\n\nAuthor: Bradley Golden\n");
   printf("Lab: Thur 11am\n");
   printf("Program: #1, Google NGram word count\n\n\n");
 
-  char line[1024][1024];
-  char *token;
+  readData(rawData, &usefulData);
+  printf("numLines: %i\n", usefulData.numLines);
 
-
-  int i = 0;
-  int j;
-  //tokenizes each line into the (char*)word, (int)year, (int)number of occurences, (int)number of texts
-  while (fgets(line[i], 1024, stdin) != NULL && i <= 20){
-    //printf("line %i: ", i);
-    //printf("%s", line[i]);
-    data[i].word = strtok(line[i], " \t"); //get word
-    //printf("line %i: ", i);
-    //printf("%s\t", data[i].word);
-    data[i].year = atoi(strtok(NULL, " \t")); //get year
-    //printf("%i\t", data[i].year);
-    data[i].numOccur = atoi(strtok(NULL, " \t"));
-    //printf("%i\t", data[i].numOccur);
-    data[i].numTexts = atoi(strtok(NULL, " \t"));
-    //printf("%i\n", data[i].numTexts);
-    i++;
-  }
-  int lines = i-1;
-  //printf("\n");
-  //
   //TODO: Count number of distinct words
-  for(i=0; i<lines; i++){
-    printf("%s\n", data[i].word);
-  }
+  
 
   return 0;
+}
+
+ngramsData readData(ngramsData rawData[], ngramsStats *usefulData){
+
+  char line[1024][1024];
+  char *token;
+  int i = 0;
+  int j;
+  
+  //tokenizes each line into the (char*)word, (int)year, (int)number of occurences, (int)number of texts
+  while (fgets(line[i], 1024, stdin) != NULL && i <= 20){
+    rawData[i].word = strtok(line[i], " \t"); //get word
+    rawData[i].year = atoi(strtok(NULL, " \t")); //get year
+    rawData[i].numOccur = atoi(strtok(NULL, " \t"));
+    rawData[i].numTexts = atoi(strtok(NULL, " \t"));
+    i++;
+  }
+  //get number of lines in a text file
+  usefulData->numLines = i - 1;
+  int size = usefulData->numLines;
+
+  if(debug){
+    for(i=0; i<size; i++){
+      printf("%s\t", rawData[i].word);
+      printf("%i\t", rawData[i].year);
+      printf("%i\t", rawData[i].numOccur);
+      printf("%i\n", rawData[i].numTexts);
+    }
+  }
+
+  return *rawData;
 }
