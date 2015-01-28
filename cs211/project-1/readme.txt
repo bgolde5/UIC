@@ -26,11 +26,15 @@ type the following command in the terminal to compile
 this program:
 
  $make main
+ 
+ 2. Run the program using the command:
+ 
+ $./main
 
-2. When prompted, enter the name of the file you wish
+3. When prompted, enter the name of the file you wish
 to read integers from.
 
-3. Enter a number to search for or -999 to terminate the 
+4. Enter a number to search for or -999 to terminate the 
 program.
 
 
