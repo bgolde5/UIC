@@ -65,7 +65,7 @@ int main (int argc, char**argv)
 
   printf ("\n\n");
 
-  return 1;   /* remove this line after answering question 3 */
+  //return 1;   /* remove this line after answering question 3 */
 
   arrElem* ptr2;
 
@@ -91,6 +91,7 @@ int main (int argc, char**argv)
   for (i = 0 ; i < SIZE; ++i)
     {
      printf ("For position %d\n", i);
+     a2[i] = (arrElem*)malloc(sizeof(arrElem));
      init2 (a2[i]);                  /* FIFTH CALL */
      printf ("In main(): value1: %14.5f, value2: %6d, value3: %6d\n",
              a2[i]->value1, a2[i]->value2, a2[i]->value3);
@@ -101,10 +102,9 @@ int main (int argc, char**argv)
   for (i = 0 ; i < SIZE; ++i)
     {
      printf ("For position %d\n", i);
+     a3 = (arrElem*)malloc(sizeof(arrElem));
      init2 (&(a3[i]));                  /* SIXTH CALL */
      printf ("In main(): value1: %14.5f, value2: %6d, value3: %6d\n",
              a3[i].value1, a3[i].value2, a3[i].value3);
     }
-
-
 }
