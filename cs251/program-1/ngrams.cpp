@@ -41,6 +41,10 @@ ngramsData *readData(int *size);
 void numDistinctWords(ngramsData *rawData, ngramsStats *usefulData, int size);
 int isDistinct(char *str1, char *str2);
 void printData(ngramsData *rawData, int n);
+void printHeader();
+char *wordPrompt();
+int *average();
+char *filePrompt();
 
 int main (){
 
@@ -48,29 +52,66 @@ int main (){
   ngramsStats *usefulData = (ngramsStats*)malloc(sizeof(ngramsStats));
   int size = 0;
 
-  printf("\n\n\nAuthor: Bradley Golden\n");
-  printf("Lab: Thur 11am\n");
-  printf("Program: #1, Google NGram word count\n\n\n");
-
-  rawData = readData(&size);
-  printData(rawData, size);
+  printHeader(); //prints required information by instructor at top of program
+  char *fileName = filePrompt();
+  printf("You entered %s\n", fileName);
+  rawData = readData(&size); //read data dynamically from the specified file
+  //printData(rawData, size);
   usefulData->numLines = size; //collect size into usefulData struct
-  numDistinctWords(rawData, usefulData, size);
+  //printf("size: %i\n", size);
+  numDistinctWords(rawData, usefulData, size); //gives the number of distinct words in the given file
+  char *wordInput = wordPrompt(); //prompts user to input a word
+  printf("You entered: %s\n", wordInput);
+  //
+  free(fileName);
+  free(wordInput);
 
   return 0;
 }
+/**
+ * function: filePrompt
+ * description: prompts the user for a file name
+ */
+char *filePrompt(){
+  char *file = (char*)malloc(sizeof(char));
+  printf("Enter a filename: ");
+  scanf("%s", file);
+  return file;
+}
+
+/**
+ * function: wordPrompt
+ * description: prompts the user for a word of type char*
+ */
+char *wordPrompt(){
+  char *word = (char*)malloc(sizeof(char));
+  printf("Enter a word: ");
+  scanf("%s", word);
+  return word;
+}
+
+/**
+ * function: printHeader
+ * description: prints the required header in CS251 including:
+ * author, lab and time, program # and name 
+ */
+void printHeader(){
+  printf("\n\n\nAuthor: Bradley Golden\n");
+  printf("Lab: Thur 11am\n");
+  printf("Program: #1, Google NGram word count\n\n\n");
+}
+
+
 /** 
  * function: numDistinctWords
  * description: counts the number of distinct words in the given file
- *
- * TODO - Account for these cases: Apples, apples 
  */
 void numDistinctWords(ngramsData *rawData, ngramsStats *usefulData, int n){
   int i;
   int count = 1;//the first word is distinct and is thus counted
   for(i=0; i<n-1; i++){
     if(isDistinct(rawData[i].word, rawData[i+1].word)!=0)
-    //printf("word1: %s word2: %s\n", rawData[i].word, rawData[i+1].word);
+      //printf("word1: %s word2: %s\n", rawData[i].word, rawData[i+1].word);
       count++;
   }
   usefulData->distinctWords = count;
@@ -84,7 +125,7 @@ void numDistinctWords(ngramsData *rawData, ngramsStats *usefulData, int n){
  */
 int isDistinct(char *str1, char *str2){
   int num;
-  num = strcmp(str1, str2);
+  num = strcasecmp(str1, str2);
   return num;
 }//end isDistinct
 
@@ -95,16 +136,19 @@ int isDistinct(char *str1, char *str2){
  * word, year, number of occurences in that year, number of texts in which that word appeared
  *
  * returns a dynamically allocated array of structs of type ngramsData
+ *
+ * TODO: fix mem leak?
  */
 ngramsData *readData(int *size){
   ngramsData *temp;
   *size = 0;
-  int totalAllocated = 0;
+  int i = 0;
   int j = 0;
-  ngramsData *rawData = (ngramsData*)malloc((totalAllocated+1)*sizeof(ngramsData));; //allocated for dynamic allocation
+  int totalAllocated = 10;
+  ngramsData *rawData = (ngramsData*)malloc(totalAllocated*sizeof(ngramsData));; //allocated for dynamic allocation
 
   FILE *ifp;
-  char fileName[50] = "datafiles3/words_that_start_with_q.csv";
+  char fileName[100] = "datafiles3/all_words.csv";
 
   ifp = fopen(fileName, "r");
 
@@ -113,18 +157,23 @@ ngramsData *readData(int *size){
   }
 
   //start dynamic allocation
-  while(fscanf(ifp, "%s %d %d %d", rawData[*size].word, &rawData[*size].year, &rawData[*size].numOccur, &rawData[*size]. numTexts) != EOF){
-    if(*size == totalAllocated){ //reached end of array, need to allocated more space
-      temp = (ngramsData*)malloc((totalAllocated*2)*sizeof(ngramsData));
-      for(j=0; j<=*size; j++){
+  while(fscanf(ifp, "%s %d %d %d", rawData[i].word, &rawData[i].year, &rawData[i].numOccur, &rawData[i].numTexts) != EOF){
+
+    if(i == totalAllocated){ //reached end of array, need to allocated more space
+      temp = (ngramsData*)malloc(((totalAllocated*2)+1)*sizeof(ngramsData));
+      for(j=0; j<=i; j++){
         temp[j] = rawData[j]; //copy array contents to larger allocated space
       }
       free(rawData);
       rawData = temp;
-      totalAllocated*=2; 
+      totalAllocated = totalAllocated * 2; 
     }
-    (*size)++; //increment number of word lines with each line read
+
+    i++;
+    //printf("size: %i\n", i);
   }
+  *size = i;
+
   fclose(ifp);
 
   return rawData;
