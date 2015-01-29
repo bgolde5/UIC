@@ -20,6 +20,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <ctype.h>
 
 #define MAX_BUF 512  
 #define fileSelector 0 //1: very_short; 2: total_counts 3: words_that_start_with_a_q; 4: all_words
@@ -37,14 +38,15 @@ typedef struct {
 } ngramsStats;
 
 /* function prototypes */
-ngramsData *readData(int *size);
+ngramsData *readData(int *size, char *filename);
 void numDistinctWords(ngramsData *rawData, ngramsStats *usefulData, int size);
 int isDistinct(char *str1, char *str2);
 void printData(ngramsData *rawData, int n);
 void printHeader();
 char *wordPrompt();
-int *average();
+double average();
 char *filePrompt();
+char **createWordArr(ngramsData *rawData, int n);
 
 int main (){
 
@@ -54,26 +56,72 @@ int main (){
 
   printHeader(); //prints required information by instructor at top of program
   char *fileName = filePrompt();
-  printf("You entered %s\n", fileName);
-  rawData = readData(&size); //read data dynamically from the specified file
+  //printf("You entered %s\n", fileName);
+  rawData = readData(&size, fileName); //read data dynamically from the specified file
+  //char **wordList = createWordArr(rawData, size);
   //printData(rawData, size);
   usefulData->numLines = size; //collect size into usefulData struct
   //printf("size: %i\n", size);
   numDistinctWords(rawData, usefulData, size); //gives the number of distinct words in the given file
   char *wordInput = wordPrompt(); //prompts user to input a word
-  printf("You entered: %s\n", wordInput);
-  //
+  //printf("You entered: %s\n", wordInput);
+
   free(fileName);
   free(wordInput);
 
   return 0;
 }
 /**
+ * function: createWordArr
+ * description: creates and array of the words
+ */
+char **createWordArr(ngramsData *rawData, int n){
+  int i;
+  char **wordArr; 
+  *wordArr = (char*)malloc(n*sizeof(char));
+  for(i=0; i<n; i++){
+    wordArr[i] = rawData[i].word;
+  }
+
+  return wordArr;
+}
+/**
+ * function: findWord
+ * description: finds a given word and returns the index of that word
+ */
+int findWord(char* word, char** wordList, int numLines){
+  int i, exitLoop;
+
+  //search by first letter first
+  for(i=0; i<numLines; i++){
+    if(word[i] == *wordList[i]){
+      exitLoop = numLines;
+    }
+  }
+
+  return i;
+}
+/**
+ * function: average
+ * description: returns the average of n amount of given integers
+ */
+double average(int numArr[], int totalNums){
+  double avg, sum;
+  int i;
+  sum = 0;
+  for(i=0; i<totalNums; i++){
+    sum+=(double)numArr[i];
+  }
+  avg =  sum / totalNums;
+
+  return avg;
+}
+/**
  * function: filePrompt
  * description: prompts the user for a file name
  */
 char *filePrompt(){
-  char *file = (char*)malloc(sizeof(char));
+  char *file = (char*)malloc(50*sizeof(char));
   printf("Enter a filename: ");
   scanf("%s", file);
   return file;
@@ -84,7 +132,7 @@ char *filePrompt(){
  * description: prompts the user for a word of type char*
  */
 char *wordPrompt(){
-  char *word = (char*)malloc(sizeof(char));
+  char *word = (char*)malloc(50*sizeof(char));
   printf("Enter a word: ");
   scanf("%s", word);
   return word;
@@ -125,7 +173,9 @@ void numDistinctWords(ngramsData *rawData, ngramsStats *usefulData, int n){
  */
 int isDistinct(char *str1, char *str2){
   int num;
-  num = strcasecmp(str1, str2);
+  str1[0] = tolower(str1[0]);
+  str2[0] = tolower(str2[0]);
+  num = strcmp(str1, str2);
   return num;
 }//end isDistinct
 
@@ -139,7 +189,7 @@ int isDistinct(char *str1, char *str2){
  *
  * TODO: fix mem leak?
  */
-ngramsData *readData(int *size){
+ngramsData *readData(int *size, char *fileName){
   ngramsData *temp;
   *size = 0;
   int i = 0;
@@ -148,7 +198,6 @@ ngramsData *readData(int *size){
   ngramsData *rawData = (ngramsData*)malloc(totalAllocated*sizeof(ngramsData));; //allocated for dynamic allocation
 
   FILE *ifp;
-  char fileName[100] = "datafiles3/all_words.csv";
 
   ifp = fopen(fileName, "r");
 
