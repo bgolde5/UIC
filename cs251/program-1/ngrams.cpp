@@ -15,7 +15,7 @@
  *
  * =====================================================================================
  */
-//TODO - total words / total words
+//TODO - sort data using insertion or selection sort! 
 
 /*  strtok example */
 #include <stdio.h>
@@ -129,11 +129,13 @@ double *totalAverageWordLength(ngramsData *rawData, int n){
   int i, j, index;
   double *ave = (double*)malloc(40*sizeof(double));
   double sum;
+  sum=0;
 
   index = 0;
   for(i=1801; i<2001; i+=5){
     for(j=1; j<6; j++){
       sum += averageWordLengthByYear(rawData, i+j, n);
+      //printf("sum: %f\n", sum);
     }
     ave[index]=(sum/5);
     sum = 0;
@@ -195,7 +197,7 @@ void graph(double arr[], int size, char *title, char *word, double yMin, double 
   double yTitle;
   yStep = yTitleStep(yMin-0.01, yMax+0.01);
 
-  printf("yStep: %.2g\n", yStep);
+  //printf("yStep: %.2g\n", yStep);
   yTitle = yMax;//+yStep;
   printf("\t\t\t\t\t\t\t\t\t%s (%s)\t\t\n", title, word);
   printf("\t\t\t ------------------------------------------------------------------------------------------------------------------------\n");
