@@ -15,6 +15,7 @@
  *
  * =====================================================================================
  */
+//TODO - total words / total words
 
 /*  strtok example */
 #include <stdio.h>
@@ -60,15 +61,16 @@ double yTitleStep(double min, double max);
 int yearPrompt();
 int getWordLength(char* str);
 double averageWordLengthByYear(ngramsData *rawData, int year, int n);
+double *totalAverageWordLength(ngramsData *rawData, int n);
 
 int main (){
     
     ngramsData *rawData;
     ngramsStats *usefulData = (ngramsStats*)malloc(sizeof(ngramsStats));
     int size = 0;
-    int *graphFlag;
-    *graphFlag = 1; //graph is enabled by default
-    
+    int enable = 1;
+    int *graphFlag = &enable; //graph is enabled by default
+
     printHeader(); //prints required information by instructor at top of program
     char *fileName = filePrompt();
     //printf("You entered %s\n", fileName);
@@ -93,29 +95,63 @@ int main (){
     double maxVal = findMax(wordFreq, 40);
     //printf("minVal: %f\n", minVal);
     //printf("maxVal: %f\n", maxVal);
-    char title[] = "Word Frequency";
+    char titleOne[] = "Word Frequency per 5 Years";
     if(*graphFlag)
-      graph(wordFreq, count, title, wordInput, minVal, maxVal);
+      graph(wordFreq, count, titleOne, wordInput, minVal, maxVal);
     int yearInput = yearPrompt();
     double aveWordLen = averageWordLengthByYear(rawData, yearInput, size);
     printf("Average word length of %i is: %f\n", yearInput, aveWordLen);
+    double *aveWordLenAll = totalAverageWordLength(rawData, size); 
+    for(i=0;i<40;i++){
+      //printf("aveWordLenAll[%i]: %f\n", i, aveWordLenAll[i]);
+    }
+    char titleTwo[] = "Total Average Word Length"; 
+    char blank[] = "";//used to hide word display at top
+    minVal = findMin(aveWordLenAll, 40);
+    maxVal = findMax(aveWordLenAll, 40);
+    graph(aveWordLenAll, count, titleTwo, blank, minVal, maxVal); 
 
     free(wordFreq);
     free(usefulData);
     free(rawData);
     free(fileName);
     free(wordInput);
+    free(aveWordLenAll);
 
     return 0;
 }
 /**
- * function: averageWordLength
+ * function: totalAverageWordLength
+ * description: returns the overall average words length of all words across all years
+ * if 5 year buckets from 1801-2000
+ */
+double *totalAverageWordLength(ngramsData *rawData, int n){
+  int i, j, index;
+  double *ave = (double*)malloc(40*sizeof(double));
+  double sum;
+
+  index = 0;
+  for(i=1801; i<2001; i+=5){
+    for(j=1; j<6; j++){
+      sum += averageWordLengthByYear(rawData, i+j, n);
+    }
+    ave[index]=(sum/5);
+    sum = 0;
+    index++;
+  }
+  return ave;
+}//end totalAverageWordLength
+
+/**
+ * function: averageWordLengthByYear
  * description: returns the average word length in a given year
  */
 double averageWordLengthByYear(ngramsData *rawData, int year, int n){
   int i, count;
   double totalLen = 0;
   count=0;
+  ///printf("year: %i\n", year);
+  //printf("n: %i\n", n);
   for(i=0; i<n; i++){
     if(year == rawData[i].year){
       //printf("totalLen: %f\n", totalLen);
@@ -157,10 +193,7 @@ void graph(double arr[], int size, char *title, char *word, double yMin, double 
   int j = 0;
   double yStep;
   double yTitle;
-  if(yMin > 0.5)
-    yStep = yTitleStep(yMin-0.5, yMax+0.5);
-  else
-    yStep = yTitleStep(yMin, yMax+0.5);
+  yStep = yTitleStep(yMin-0.01, yMax+0.01);
 
   printf("yStep: %.2g\n", yStep);
   yTitle = yMax;//+yStep;
