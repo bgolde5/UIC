@@ -48,11 +48,11 @@ void printHeader();
 char *wordPrompt();
 char *filePrompt();
 int searchByWord(char *word, ngramsData *rawData, int n);
-double *averageFrequency(char *word, ngramsData *rawData, int wordIndex, int n);
+double *averageFrequency(char *word, ngramsData *rawData, int wordIndex, int n, int *graphFlag);
 int numWords(char *word, ngramsData *rawData, int wordIndex, int numWords);
 int isInYearRange(int year);
-int addTexts(ngramsData *rawData, int start, int range);
-int addFreq(ngramsData *rawData, int start, int range, int yMin, int yMax);
+int addTexts(char *word, ngramsData *rawData, int start, int range);
+int addFreq(char *word, ngramsData *rawData, int start, int range, int yMin, int yMax);
 void graph(double arr[], int size, char *title, char *word, double yMin, double yMax);
 double findMin(double arr[], int n);
 double findMax(double arr[], int n);
@@ -66,6 +66,8 @@ int main (){
     ngramsData *rawData;
     ngramsStats *usefulData = (ngramsStats*)malloc(sizeof(ngramsStats));
     int size = 0;
+    int *graphFlag;
+    *graphFlag = 1; //graph is enabled by default
     
     printHeader(); //prints required information by instructor at top of program
     char *fileName = filePrompt();
@@ -82,7 +84,7 @@ int main (){
     //printf("Word found at: %i\n", wordIndex);
     int count = numWords(wordInput, rawData, wordIndex, size);
     //printf("word count: %i\n", count);
-    double *wordFreq = averageFrequency(wordInput, rawData, wordIndex, count);
+    double *wordFreq = averageFrequency(wordInput, rawData, wordIndex, count, graphFlag);
     int i;
     for(i=0; i<40; i++){
         //printf("%i: average word frequency: %f\n", i, wordFreq[i]);
@@ -92,17 +94,18 @@ int main (){
     //printf("minVal: %f\n", minVal);
     //printf("maxVal: %f\n", maxVal);
     char title[] = "Word Frequency";
-    graph(wordFreq, count, title, wordInput, minVal, maxVal);
+    if(*graphFlag)
+      graph(wordFreq, count, title, wordInput, minVal, maxVal);
     int yearInput = yearPrompt();
     double aveWordLen = averageWordLengthByYear(rawData, yearInput, size);
     printf("Average word length of %i is: %f\n", yearInput, aveWordLen);
-    
+
     free(wordFreq);
     free(usefulData);
     free(rawData);
     free(fileName);
     free(wordInput);
-    
+
     return 0;
 }
 /**
@@ -150,67 +153,67 @@ int yearPrompt(){
  * description: prints graph of data to the screen
  */
 void graph(double arr[], int size, char *title, char *word, double yMin, double yMax){
-    int i = 0;
-    int j = 0;
-    double yStep;
-    double yTitle;
-    if(yMin > 0.5)
-        yStep = yTitleStep(yMin-0.5, yMax+0.5);
-    else
-        yStep = yTitleStep(yMin, yMax+0.5);
-    
-    printf("yStep: %.2g\n", yStep);
-    yTitle = yMax;//+yStep;
-    printf("\t\t\t\t\t\t\t\t\t%s (%s)\t\t\n", title, word);
-    printf("\t\t\t ------------------------------------------------------------------------------------------------------------------------\n");
-    //display bars
-    for(i=0; i<50; i++){
-        printf("%f\t\t|", yTitle);
-        for(j=0; j<40; j++){
-            //if arr[i] + yTitle print " X "
-            if(arr[j] >= yTitle){
-                printf(" X ");
-            }
-            //else print "   "
-            else{
-                printf("   ");
-            }
-        }
-        printf("|\n");
-        yTitle-=yStep;
-    }
-    printf("\t\t\t ------------------------------------------------------------------------------------------------------------------------\n");
-    printf("\t\t\t ");
+  int i = 0;
+  int j = 0;
+  double yStep;
+  double yTitle;
+  if(yMin > 0.5)
+    yStep = yTitleStep(yMin-0.5, yMax+0.5);
+  else
+    yStep = yTitleStep(yMin, yMax+0.5);
 
-    //display years
-    for(i=0; i<40; i++){
-        printf(" 1 ");
+  printf("yStep: %.2g\n", yStep);
+  yTitle = yMax;//+yStep;
+  printf("\t\t\t\t\t\t\t\t\t%s (%s)\t\t\n", title, word);
+  printf("\t\t\t ------------------------------------------------------------------------------------------------------------------------\n");
+  //display bars
+  for(i=0; i<50; i++){
+    printf("%f\t\t|", yTitle);
+    for(j=0; j<40; j++){
+      //if arr[i] + yTitle print " X "
+      if(arr[j] >= yTitle){
+        printf(" X ");
+      }
+      //else print "   "
+      else{
+        printf("   ");
+      }
     }
-    printf("\n\t\t\t ");
-    for(i=0; i<20; i++){
-        printf(" 8 ");
-    }
-    for(i=0; i<20; i++){
-      printf(" 9 ");
-    }
-    printf("\n\t\t\t ");
-    j=0;
-    for(i=1; i<=40; i++){
-      printf(" %i ", j);
-      if(i%2 == 0)
-        j++; 
-      if(j > 9)
-        j = 0;
-    }
-    printf("\n\t\t\t ");
-    j = 1;
-    for(i=0; i<40; i++){
-      if(j > 6)
-        j = 1;
-      printf(" %i ", j); 
-      j+=5;
-    }
-    printf("\n\t\t\t\t\t\t\t\t\tYear\n");
+    printf("|\n");
+    yTitle-=yStep;
+  }
+  printf("\t\t\t ------------------------------------------------------------------------------------------------------------------------\n");
+  printf("\t\t\t ");
+
+  //display years
+  for(i=0; i<40; i++){
+    printf(" 1 ");
+  }
+  printf("\n\t\t\t ");
+  for(i=0; i<20; i++){
+    printf(" 8 ");
+  }
+  for(i=0; i<20; i++){
+    printf(" 9 ");
+  }
+  printf("\n\t\t\t ");
+  j=0;
+  for(i=1; i<=40; i++){
+    printf(" %i ", j);
+    if(i%2 == 0)
+      j++; 
+    if(j > 9)
+      j = 0;
+  }
+  printf("\n\t\t\t ");
+  j = 1;
+  for(i=0; i<40; i++){
+    if(j > 6)
+      j = 1;
+    printf(" %i ", j); 
+    j+=5;
+  }
+  printf("\n\t\t\t\t\t\t\t\t\tYear\n");
 }//end graph
 
 double yTitleStep(double min, double max){
@@ -256,12 +259,16 @@ double findMax(double arr[], int n){
  * function: addFreq
  * description: adds word frequency in a specified year range
  */
-int addFreq(ngramsData *rawData, int start, int range){
+int addFreq(char *word, ngramsData *rawData, int start, int range){
   int sum, i;
   sum = 0;
-  for(i=start; i<(start+range); i++){
-    sum+=rawData[i].numOccur;
-    //printf("sum: %i\n", sum);
+  i = start;
+  while(i<(start+range)){
+    if(isInYearRange(rawData[i].year) && wordsAreSame(word,rawData[i].word)==0){
+      sum+=rawData[i].numOccur;
+    }
+    i++;
+    //    printf("sum: %i\n", sum);
   }
   return sum;
 }//end addRange
@@ -270,11 +277,15 @@ int addFreq(ngramsData *rawData, int start, int range){
  * function: addTexts
  * description: add number of texts in a specified year range
  */
-int addTexts(ngramsData *rawData, int start, int range){
+int addTexts(char *word, ngramsData *rawData, int start, int range){
   int sum, i;
   sum = 0;
-  for(i=start; i<(start+range); i++){
-    sum+=rawData[i].numTexts;
+  i = start;
+  while(i<(start+range)){
+    if(isInYearRange(rawData[i].year) && wordsAreSame(word,rawData[i].word)==0){
+      sum+=rawData[i].numTexts;
+    }
+    i++;
   }
   return sum;
 }//end addTexts
@@ -282,27 +293,36 @@ int addTexts(ngramsData *rawData, int start, int range){
 /** function: averageFrequency
  *  description: gives the frequency of a given word every 5 years
  */
-double *averageFrequency(char *word, ngramsData *rawData, int wordIndex, int numWords){
+double *averageFrequency(char *word, ngramsData *rawData, int wordIndex, int numWords, int *graphFlag){
   double *ave;
   int freq, texts;
   int i = 0;
-  ave = (double*)malloc(numWords*sizeof(double));//size of ave depends on number of words in the specified range of years
+  //printf("numWords: %i\n", numWords);
+  //ave = (double*)malloc(numWords*sizeof(double));//size of ave depends on number of words in the specified range of years
+  ave = (double*)malloc(40*sizeof(double));//size of ave depends on number of words in the specified range of years
+
 
   //average years if year is in the range of 1801 - 2000
-  while(wordsAreSame(word, rawData[wordIndex].word) == 0){
-    while(isInYearRange(rawData[wordIndex].year)){
-      //sum 5 year range of word frequency
-      //printf("year: %i\n", rawData[wordIndex].year);
-      freq = addFreq(rawData, wordIndex, 5);
-      //printf("freq: %i\n", freq);
-      texts = addTexts(rawData, wordIndex, 5);
-      //printf("texts: %i\n", texts);
-      ave[i] = (double)freq / texts;
-      //printf("%i: ave[%i]: %f\n", i, i, ave[i]);
-      i++;
+  while(wordsAreSame(word, rawData[wordIndex].word) == 0 && i<40){
+    //sum 5 year range of word frequency
+    //printf("year: %i\n", rawData[wordIndex].year);
+    freq = addFreq(word, rawData, wordIndex, 5);
+    //printf("freq: %i\n", freq);
+    texts = addTexts(word, rawData, wordIndex, 5);
+    //printf("texts: %i\n", texts);
+    ave[i] = (double)freq / texts;
+    //printf("%i: ave[%i]: %f\tyear: %i\n", i, i, ave[i], rawData[wordIndex].year);
+    if(isInYearRange(rawData[wordIndex].year)){
+      i++;//only increment index if the correct year
       wordIndex+=5;
     }
-    wordIndex++;
+    else{
+      wordIndex++; //check each year until 1801 then begin adding 5
+    }
+  }
+  if(i==0){
+    printf("There are no words in the file between 1801 and 2001\n");
+    *graphFlag = 0;
   }
   return ave;
 }//end averageFrequency
@@ -312,7 +332,7 @@ double *averageFrequency(char *word, ngramsData *rawData, int wordIndex, int num
  *  description: determines whether the given word is between 1801 and 2000
  */
 int isInYearRange(int year){
-  if(year > 1800 && year < 2001)
+  if(year >= 1801 && year <= 2001)
     return 1;
   return 0;
 }
