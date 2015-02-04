@@ -25,22 +25,18 @@
 
 using namespace std;
 
-#define GRAPH_HEIGHT 20
-#define GRAPH_WIDTH 40
+#define GRAPH_HEIGHT 20 //set to dynamically resize graph height
+#define GRAPH_WIDTH 40 //set to dynamically resize graph width
 
 //snapshot of each line in the text file
 typedef struct {
-    char *word; //the longest word in the US dictionary is 45 characters!
+    char word[45]; //the longest word in the US dictionary is 45 characters!
     int year;
     int numOccur;
     int numTexts;
 } ngramsData;
 
-//collection of useful stats
-typedef struct {
-    int numLines;
-    int distinctWords;
-} ngramsStats;
+char fileName[] = "all_words.csv";
 
 
 //function prototypes
@@ -48,7 +44,8 @@ char *allocateWordMem(char *word);
 ngramsData *dynamicMemAllocation(ngramsData *rawData, int *memAvail);
 ngramsData *readData(int *size, char *fileName);
 ngramsData *createWord(ngramsData *rawData);
-void numDistinctWords(ngramsData *rawData, ngramsStats *usefulData, int size);
+char **sort(char **arr, int size);
+int numDistinctWordsEst(ngramsData *rawData, int size);
 int wordsAreDiff(char *str1, char *str2);
 void printData(ngramsData *rawData, int n);
 void printHeader();
@@ -71,12 +68,11 @@ double *totalAverageWordLength(ngramsData *rawData, int n);
 void printYears();
 void fillBuckets(int width, int height, double step, double yVal, double data[]);
 void printBars(int n);
-int yearPrompt();
-ngramsData *sort(ngramsData *rawData, int size);
+char **copyWordsToArr(ngramsData *rawData, int size);
+int distinctWords(char **arr, int size);
 
 int main() {
     ngramsData *rawData;
-    ngramsStats *usefulData = (ngramsStats*)malloc(sizeof(ngramsStats));
     int size = 0;
     int enable = 1;
     int *graphFlag = &enable; //graph is enabled by default
@@ -90,27 +86,29 @@ int main() {
     char bottomTitle[] = "";//left blank
     char titleTwo[] = "Total Average Word Length";
     
-    
     //gen info
     printHeader();
 
     //read and store file contents
-    char* fileName = filePrompt();
     if(fileName == NULL)
       return -1;
     printf("Reading file.... Please wait...\n");
     rawData = readData(&size, fileName);
     if(rawData == NULL)
       return -1;
-    printf("Reading complete...Sorting file...Please wait...\n");
-    rawData = sort(rawData, size);
-    //printData(rawData, size);
 
     //collect stats
-    usefulData->numLines = size; //collect size into usefulData struct
-    numDistinctWords(rawData, usefulData, size);
+    int estDistinctWords = numDistinctWordsEst(rawData, size); //gives max possible distinct words **this is not accurate**
+    char **wordArr = copyWordsToArr(rawData, size);
+    wordArr = sort(wordArr, estDistinctWords);
+
+    //part I
+    int exactDistinctWords = distinctWords(wordArr, estDistinctWords);
+    printf("Total number of distinct words is %i\n", exactDistinctWords);
+
+    //part II
     char *wordInput = wordPrompt(); //prompts user to input a word
-    printf("Searching for word... Please wait...\n");
+    printf("Searching for word... Please wait...");
     int wordIndex = searchByWord(wordInput, rawData, size);
     if(wordIndex == -1){
       printf("%s could not be found in the file.\n", wordInput);
@@ -120,15 +118,9 @@ int main() {
       printf("%s has been found!\n", wordInput);
     }
     int count = numWords(wordInput, rawData, wordIndex, size);
-    if(count < 40){
-      printf("This file is too small to perform the rest of the operations. :(\n");
-      return 0;
-    }
 
-    //part I
+
     wordFreq = averageFrequency(wordInput, rawData, wordIndex, count, graphFlag);
-
-    //part II
     minVal = findMin(wordFreq, 40);
     maxVal = findMax(wordFreq, 40);
     if(*graphFlag)
@@ -137,9 +129,13 @@ int main() {
     //part III
     yearInput = yearPrompt();
     aveWordLen = averageWordLengthByYear(rawData, yearInput, size);
-    printf("Average word length of %i is: %f\n", yearInput, aveWordLen);
+    if(aveWordLen == -1)
+      printf("That year cannot be found in the file!\n");
+    else
+      printf("Average word length of %i is: %f\n", yearInput, aveWordLen);
 
     //partIV
+    printf("Calculating the total average word length across all years... please wait...\n");
     aveWordLenAll = totalAverageWordLength(rawData, size);
     minVal = findMin(aveWordLenAll, 40);
     maxVal = findMax(aveWordLenAll, 40);
@@ -148,34 +144,75 @@ int main() {
 
 
     //free space used
+    int i;
     free(wordFreq);
-    free(usefulData);
     free(rawData);
-    free(fileName);
     free(wordInput);
     free(aveWordLenAll);
+    for(i=0; i<estDistinctWords; i++){
+      free(wordArr[i]);
+    }
+    free(wordArr);
 
     return 0;
 }//end main
+
+/**
+ * function: distinctWords
+ * description: counts the number of distinct words in an array of strings 
+ */
+int distinctWords(char **arr, int size){
+  int i;
+  int count = 1;//the first word is distinct and is thus counted
+  for(i=0; i<size-1; i++){
+    if(wordsAreDiff(arr[i], arr[i+1]))
+      count++;
+  }
+  return count;
+}//end distinctWords
+
+/**
+ * function: copyWordsToArr
+ * descrition: copies words to an array of string for the purpose of finding distinc words
+ */
+char **copyWordsToArr(ngramsData *rawData, int size){
+  int i = 0;
+  int j = 0;
+
+  char **wordArr = (char**)malloc(12000*sizeof(char*));
+
+  for(i=0; i<12000; i++){
+    wordArr[i] = (char*)malloc((45+1)*sizeof(char));
+  }
+
+  for(i=1; i<size; i++){
+    if(rawData[i-1].year > rawData[i].year || i == 1){
+      strncpy(wordArr[j], rawData[i].word, 45);
+      j++;
+    }
+  }
+
+  return wordArr;
+}//end copyWordsToArr
 
 /** 
  * function: sort
  * description: insertion sort
  */
-ngramsData *sort(ngramsData *rawData, int size){
+char **sort(char **arr, int size){
   int c, d, t;
-  ngramsData *temp = (ngramsData*)malloc(sizeof(ngramsData));
+  char *temp = (char*)malloc(45*sizeof(char));
   d = 0;
   for (c = 1 ; c <= size - 1; c++) {
     d = c;
-    while ( d > 0 && strcasecmp(rawData[d].word, rawData[d-1].word) > 0) {
-      *temp = rawData[d];
-      rawData[d] = rawData[d-1];
-      rawData[d-1] = *temp;
+    while ( d > 0 && strcasecmp(arr[d], arr[d-1]) < 0) {
+      temp = arr[d];
+      arr[d] = arr[d-1];
+      arr[d-1] = temp;
       d--;
     }
   }
-  return rawData;
+  return arr;
 }//end sort
 
 /**
@@ -196,7 +233,6 @@ char *filePrompt(){
 int getWordLength(char* str){
   int length;
   length = (int)strnlen(str, 45);
-  //printf("word length: %i\n", length);
   return length;
 }//end getWordLength
 
@@ -218,6 +254,9 @@ double averageWordLengthByYear(ngramsData *rawData, int year, int n){
     }
   }
   //printf("total words: %i\n", count);
+  if(count == 0){
+    return -1; //year doesn't exist in struct rawData
+  }
   return totalLen/count;
 }//end averageWordLength
 
@@ -275,9 +314,14 @@ double *totalAverageWordLength(ngramsData *rawData, int n){
   double *ave = (double*)malloc(40*sizeof(double));
   double sum;
   sum=0;
+  int percent = 0;
 
   index = 0;
   for(i=1801; i<2001; i+=5){
+    if(index%10 == 0){
+      printf("%i%c complete...\n", percent, 37);
+      percent+=25;
+    }
     for(j=1; j<6; j++){
       sum += averageWordLengthByYear(rawData, i+j, n);
       //printf("sum: %f\n", sum);
@@ -285,7 +329,7 @@ double *totalAverageWordLength(ngramsData *rawData, int n){
     ave[index]=(sum/5);
     sum = 0;
     index++;
-  }
+  };
   return ave;
 }//end totalAverageWordLength
 
@@ -325,11 +369,9 @@ void fillBuckets(int width, int height, double step, double yVal, double data[])
   for(i=0; i<height; i++){
     printf("%f\t|", yVal);
     for(j=0; j<width; j++){
-      //if arr[i] + yTitle print " X "
       if(data[j] >= yVal){
         printf("X");
       }
-      //else print "   "
       else{
         printf(" ");
       }
@@ -388,14 +430,13 @@ void graph(double arr[], int size, char *title, char *word, double yMin, double 
   double yTitle;
   yStep = yTitleStep(yMin-0.01, yMax+0.01, graphHeight);
 
-  //printf("yStep: %.2g\n", yStep);
   yTitle = yMax;//+yStep;
   printf("\t\t\t%s (%s)\t\t\n", title, word);
 
   //print graph window bars ("-")
   printBars(graphWidth);
 
-  //fill year buckets
+  //fill year buckets and print y vals
   fillBuckets(graphWidth, graphHeight, yStep, yTitle, arr);
 
   //print graph windows bars ("-")
@@ -412,7 +453,7 @@ double yTitleStep(double min, double max, int height){
   step = (max - min) / (height-1);
 
   return step;
-}
+}//end yTitleStep
 
 /**
  * function: findMax
@@ -446,8 +487,9 @@ double findMin(double arr[], int n){
   return min;
 }//end findMin
 
-/** function: averageFrequency
- *  description: gives the frequency of a given word every 5 years
+/** 
+ * function: averageFrequency
+ * description: gives the frequency of a given word every 5 years
  */
 double *averageFrequency(char *word, ngramsData *rawData, int wordIndex, int numWords, int *graphFlag){
   double *ave;
@@ -461,13 +503,9 @@ double *averageFrequency(char *word, ngramsData *rawData, int wordIndex, int num
   //average years if year is in the range of 1801 - 2000
   while(!wordsAreDiff(word, rawData[wordIndex].word) && i<40){ //while words are the same
     //sum 5 year range of word frequency
-    //printf("year: %i\n", rawData[wordIndex].year);
     freq = addFreq(word, rawData, wordIndex, 5);
-    //printf("freq: %i\n", freq);
     texts = addTexts(word, rawData, wordIndex, 5);
-    //printf("texts: %i\n", texts);
     ave[i] = (double)freq / texts;
-    //printf("%i: ave[%i]: %f\tyear: %i\n", i, i, ave[i], rawData[wordIndex].year);
     if(isInYearRange(rawData[wordIndex].year)){
       i++;//only increment index if the correct year
       wordIndex+=5;
@@ -528,44 +566,38 @@ char *wordPrompt(){
  * description: returns the strcmp value of two strings
  */
 int wordsAreDiff(char *str1, char *str2){
-  //printf("%s %s\n", str1, str2);
   int num=0;
   int i=0;
   int len1, len2;
   len1 = (int)strlen(str1);
   len2 = (int)strlen(str2);
-  //printf(" len1: %i, len2: %i\n", len1, len2);
 
   //force strings to be lowercase
   for(i=0; i<len1; i++){
     str1[i] = tolower(str1[i]);
   }
-  //printf("%s", str1);
   for(i=0; i<len2; i++){
     str2[i] = tolower(str2[i]);
   }
-  //printf(" %s\n", str2);
   num = strcmp(str1, str2);
-  //printf("num: %i", num);
 
   return num;
 
 }//end wordsAreDiff
 
 /**
- * function: numDistinctWords
+ * function: numDistinctWordsEst
  * description: counts the number of distinct words in the given file
  */
-void numDistinctWords(ngramsData *rawData, ngramsStats *usefulData, int n){
+int numDistinctWordsEst(ngramsData *rawData, int n){
   int i;
   int count = 1;//the first word is distinct and is thus counted
   for(i=0; i<n-1; i++){
     if(wordsAreDiff(rawData[i].word, rawData[i+1].word))
       count++;
   }
-  printf("Number of Distinct Words: %d\n", count);
-  usefulData->distinctWords = count;
-}//end numDistinctWords
+  return count;
+}//end numDistinctWordsEst
 
 /**
  * function: cleanMem
@@ -606,44 +638,58 @@ ngramsData *readData(int *size, char *fileName){
 
   int totalAllocated = 100;
   int count = 0;
-  char word[100];
+  char word[45];
   int year;
   int wordCount;
   int uniqueTextCount;
   char *newWord;
   int j;
+  int percentComplete = 0;
 
+  //initialize rawData with 100 structs
   ngramsData *rawData = (ngramsData*)malloc(totalAllocated*sizeof(ngramsData));
   if(rawData == NULL){
     printf("Error allocating initial memory for *rawData");
   }
 
+  //read contents of given file
   while( fscanf( inFile, "%s %d %d %d", word, &year, &wordCount, &uniqueTextCount) != EOF ) {
+    //displays the percent complete to the client
+    if(count%1000000 == 0){
+      printf("%i%c Complete\n", percentComplete, 37);
+      percentComplete+=25;
+    }
+
+    //begin dynamic allocation
     if(count == totalAllocated){
       //ngramsData *temp = dynamicMemAllocation(rawData, &totalAllocated);
-      ngramsData *temp = (ngramsData*)malloc((totalAllocated+1000)*sizeof(ngramsData));
+      ngramsData *temp = (ngramsData*)malloc(2*(totalAllocated)*sizeof(ngramsData));
+
+      //copy rawData into new allocated space temp for later reassignment
       for(j=0;j<count;j++){
         temp[j] = rawData[j];
       }
       free(rawData);
+      //point rawData to temp
       rawData = temp;
-      totalAllocated+=1000;
-    }
+      //double allocated space
+      totalAllocated*=2;
+    }//end dynamic allocation
 
-    //allocate word mem
-    newWord = allocateWordMem(word);
-    //printf("newWord: %s\n", newWord);
-    rawData[count].word = newWord;
-    //for(j=0; j<strlen(word); j++){
-    //rawData[count].word[j] = word[j];
-    //}
+    //lowercase each word
+    for(j=0;j<strnlen(word,45); j++) 
+      word[j] = tolower(word[j]);
+
+    //copy file word to struct
+    strncpy(rawData[count].word, word, 45);
+
+    //copy vital data to rawData struct
     rawData[count].year = year;
     rawData[count].numOccur = wordCount;
     rawData[count].numTexts = uniqueTextCount;
-    //printf("%s %d %d %d \n", word, year, wordCount, uniqueTextCount);
-    //printf("%s %d %d %d \n", rawData[count].word, rawData[count].year, rawData[count].numOccur, rawData[count].numTexts);
     count++;
   }
+  //update total word size
   *size = count;
 
   return rawData;
@@ -656,8 +702,6 @@ ngramsData *readData(int *size, char *fileName){
 char *allocateWordMem(char *word){
   int length;
   length = (int)strlen(word);
-
-  //  printf("length: %i word: %s\n", length, word);
 
   char *dynWord = (char*)malloc(1+sizeof(length));
 
