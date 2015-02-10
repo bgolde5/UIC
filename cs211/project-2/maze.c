@@ -62,9 +62,14 @@ maze *readFile(int argNum, char **argStr, FILE *src){
 
 void checkMazeStartOrEnd(maze *mptr, int *startOrEndX, int *startOrEndY, FILE *filePtr){
   while(*startOrEndX < 1 || *startOrEndX > mptr->xsize){
-    fscanf (filePtr, "%d %d", startOrEndX, startOrEndY);
-    if(*startOrEndX < 1 || *startOrEndX > mptr->xsize)
-      fprintf(stderr, "%i %i\tInvalid: row %i is outside range from 1 to %i\n", *startOrEndX, *startOrEndY, *startOrEndX, mptr->xsize);
+    if(fscanf (filePtr, "%d %d", startOrEndX, startOrEndY) != EOF){
+      if(*startOrEndX < 1 || *startOrEndX > mptr->xsize)
+        fprintf(stderr, "%i %i\tInvalid: row %i is outside range from 1 to %i\n", *startOrEndX, *startOrEndY, *startOrEndX, mptr->xsize);
+    }
+    else {
+      fprintf(stderr, "Error: file doesn't contain enough lines to build a maze\n");
+      exit(-1);
+    }
   }
   while(*startOrEndY < 1 || *startOrEndY > mptr->ysize){
     fscanf (filePtr, "%d %d", startOrEndX, startOrEndY);
@@ -77,9 +82,14 @@ void checkMazeStartOrEnd(maze *mptr, int *startOrEndX, int *startOrEndY, FILE *f
 void checkMazeSize(maze *mptr, FILE *filePtr){
   //checks that the mize size is valid
   while(mptr->xsize <= 0 || mptr->ysize <= 0){
-    fscanf (filePtr, "%d %d", &mptr->xsize, &mptr->ysize);
-    if(mptr->xsize <= 0 || mptr->ysize <=0){
-      fprintf(stderr, "%i %i\tInvalid: Maze sizes must be greater than 0.\n", mptr->xsize, mptr->ysize);
+    if (fscanf (filePtr, "%d %d", &mptr->xsize, &mptr->ysize) != EOF){
+      if(mptr->xsize <= 0 || mptr->ysize <=0){
+        fprintf(stderr, "%i %i\tInvalid: Maze sizes must be greater than 0.\n", mptr->xsize, mptr->ysize);
+      }
+    }
+    else{
+      fprintf(stderr, "Error: file doesn't contain enough lines to build a maze\n");
+      exit(-1);
     }
   }
 }//end checkMazeSize
@@ -106,7 +116,7 @@ maze *buildEmptyMaze(maze *mptr){
     mptr->arr[mptr->xsize+1][i] = '#';
   }
 
-    return mptr;
+  return mptr;
 }//end buildEmptyMaze
 
 maze *insertMazeStartAndEnd(maze *mptr){
@@ -134,7 +144,8 @@ maze *buildMazeBlock(maze *mptr, FILE *filePtr){
       fprintf(stderr, "%i %i\tInvalid: attempting to block the ending position\n", x, y);
     }
     else{
-      fprintf(stderr, "%i %i\n", x, y);
+      if(DEBUG)
+        fprintf(stderr, "%i %i\n", x, y);
       mptr->arr[x][y] = '#';
       mptr->visited[x][y] = TRUE;
     }
@@ -183,7 +194,7 @@ void dfs(maze *mptr){
       stk_push(stk, mPos, nPos); //push corrdinates on top of stack
       markVisited(mptr, mPos, nPos); //mark position a visited
       if(MAZE_PRINT_ON)
-      printMaze(mptr);
+        printMaze(mptr);
     } 
     else {
       stk_pop(stk);

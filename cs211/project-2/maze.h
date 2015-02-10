@@ -25,7 +25,8 @@
 #define BLOCKED '#'
 #define END_POSITION 'e'
 #define VISITED 'X'
-#define MAZE_PRINT_ON 1 //turn the maze printing on or off
+#define MAZE_PRINT_ON 0 //turn the maze printing on or off
+#define DEBUG 0 //debug flag used for personal tests
 
 typedef struct mazeStruct {
   char **arr; //allows for dynamiccaly sized maze of size MxN

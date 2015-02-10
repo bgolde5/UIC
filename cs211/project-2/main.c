@@ -20,8 +20,6 @@
 
 #include "maze.h"
 
-#define DEBUG 0 //set debugging mode for personal use: 0 off, 1 on
-
 int debugMode; //set debugging mode for assingment specs
 
 int main(int argc, char** argv){
