@@ -19,22 +19,12 @@
 #include "maze.h"
 #include "stack.h"
 
+int debugMode;
+
 maze *readFile(int argNum, char **argStr, FILE *src){
 
   maze *mptr = (maze*)malloc(sizeof(maze));
   int i, j;
-
-  /*   verify the proper number of command line arguments were given */
-  if(argNum != 2) {
-    printf("Usage: %s <input file name>\n", argStr[0]);
-    exit(-1);
-  }
-
-  /*   Try to open the input file. */
-  if ( ( src = fopen( argStr[1], "r" )) == NULL ) {
-    printf ( "Can't open input file: %s", argStr[1] );
-    exit(-1);
-  }
 
   mptr->xsize = 0;
   mptr->ysize = 0;
@@ -46,28 +36,26 @@ maze *readFile(int argNum, char **argStr, FILE *src){
   /*   read in the size, starting and ending positions in the maze */
   //check that maze dimensions are correct
   checkMazeSize(mptr, src);
-  printf("%i %i Maze size becomes %i x %i\n", mptr->xsize, mptr->ysize, mptr->xsize, mptr->ysize);
+  printf("%i %i\tMaze size becomes %i x %i\n", mptr->xsize, mptr->ysize, mptr->xsize, mptr->ysize);
 
   checkMazeStartOrEnd(mptr, &(mptr->xstart), &(mptr->ystart), src);
-  printf("%i %i Starting position is at %i, %i\n", mptr->xstart, mptr->ystart, mptr->xstart, mptr->ystart);
+  printf("%i %i\tStarting position is at %i, %i\n", mptr->xstart, mptr->ystart, mptr->xstart, mptr->ystart);
 
   checkMazeStartOrEnd(mptr, &(mptr->xend), &(mptr->yend), src);
-  printf("%i %i Ending position is at %i, %i\n", mptr->xend, mptr->yend, mptr->xend, mptr->yend);
+  printf("%i %i\tEnding position is at %i, %i\n", mptr->xend, mptr->yend, mptr->xend, mptr->yend);
 
   //allocate rows for maze board
-  char **board = (char**)malloc((mptr->xsize+2)*sizeof(char *));
+  char **board = (char**)malloc((mptr->xsize+2)*sizeof(char*));
+  int **visited = (int**)malloc((mptr->xsize+2)*sizeof(int*));
 
   //allocate columns for maze board
   for(i = 0; i < mptr->xsize+2; i++){
     board[i] = (char*)malloc((mptr->ysize+2)*sizeof(char));
+    visited[i] = (int*)malloc((mptr->ysize+2)*sizeof(int));
   }
 
   mptr->arr = board;
-
-  /*   print them out to verify the input */
-  //printf ("size: %d, %d\n", mptr->xsize, mptr->ysize);
-  //printf ("start: %d, %d\n", mptr->xstart, mptr->ystart);
-  //printf ("end: %d, %d\n", mptr->xend, mptr->yend);
+  mptr->visited = visited;
 
   return mptr; 
 }//end readFile
@@ -76,12 +64,12 @@ void checkMazeStartOrEnd(maze *mptr, int *startOrEndX, int *startOrEndY, FILE *f
   while(*startOrEndX < 1 || *startOrEndX > mptr->xsize){
     fscanf (filePtr, "%d %d", startOrEndX, startOrEndY);
     if(*startOrEndX < 1 || *startOrEndX > mptr->xsize)
-      printf("%i %i Invalid: row %i is outside range from 1 to %i\n", *startOrEndX, *startOrEndY, *startOrEndX, mptr->xsize);
+      fprintf(stderr, "%i %i\tInvalid: row %i is outside range from 1 to %i\n", *startOrEndX, *startOrEndY, *startOrEndX, mptr->xsize);
   }
   while(*startOrEndY < 1 || *startOrEndY > mptr->ysize){
     fscanf (filePtr, "%d %d", startOrEndX, startOrEndY);
     if(*startOrEndY < 1 || *startOrEndY > mptr->ysize){
-      printf("%i %i Invalid: column %i is outside range from 1 to %i\n", *startOrEndX, *startOrEndY, *startOrEndY, mptr->ysize);
+      fprintf(stderr, "%i %i\tInvalid: column %i is outside range from 1 to %i\n", *startOrEndX, *startOrEndY, *startOrEndY, mptr->ysize);
     }
   }
 }//end checkMazeStartOrEnd
@@ -91,7 +79,7 @@ void checkMazeSize(maze *mptr, FILE *filePtr){
   while(mptr->xsize <= 0 || mptr->ysize <= 0){
     fscanf (filePtr, "%d %d", &mptr->xsize, &mptr->ysize);
     if(mptr->xsize <= 0 || mptr->ysize <=0){
-      printf("%i %i Invalid: Maze sizes must be greater than 0.\n", mptr->xsize, mptr->ysize);
+      fprintf(stderr, "%i %i\tInvalid: Maze sizes must be greater than 0.\n", mptr->xsize, mptr->ysize);
     }
   }
 }//end checkMazeSize
@@ -102,10 +90,12 @@ maze *buildEmptyMaze(maze *mptr){
 
   /*   initialize the maze to empty */
   for (i = 0; i < mptr->xsize+2; i++)
-    for (j = 0; j < mptr->ysize+2; j++)
+    for (j = 0; j < mptr->ysize+2; j++){
       mptr->arr[i][j] = '.';
+      mptr->visited[i][j] = 0;
+    }
 
-  /*   mark the borders of the maze with #'s */
+  /*   mark the borders of the maze with #'s and 1's*/
   for (i=0; i < mptr->xsize+2; i++) {
     mptr->arr[i][0] = '#';
     mptr->arr[i][mptr->ysize+1] = '#';
@@ -132,53 +122,101 @@ maze *buildMazeBlock(maze *mptr, FILE *filePtr){
 
   while (fscanf (filePtr, "%d %d", &x, &y) != EOF) {
     if(x < 1 || x > mptr->xsize){
-      printf("%i %i Invalid: row %i is outside range from 1 to %i\n", x, y, x, mptr->xsize);
+      fprintf(stderr, "%i %i\tInvalid: row %i is outside range from 1 to %i\n", x, y, x, mptr->xsize);
     }
     else if(y < 1 || y > mptr->ysize){
-      printf("%i %i Invalid: row %i is outside range from 1 to %i\n", x, y, x, mptr->ysize);
+      fprintf(stderr, "%i %i\tInvalid: column %i is outside range from 1 to %i\n", x, y, y, mptr->ysize);
+    }
+    else if(x == mptr->xstart && y == mptr->ystart){
+      fprintf(stderr, "%i %i\tInvalid: attempting to block the starting position\n", x, y);
+    }
+    else if(x == mptr->xend && y == mptr->yend){
+      fprintf(stderr, "%i %i\tInvalid: attempting to block the ending position\n", x, y);
     }
     else{
-      printf("%i %i\n", x, y);
-    mptr->arr[x][y] = '#';
+      fprintf(stderr, "%i %i\n", x, y);
+      mptr->arr[x][y] = '#';
+      mptr->visited[x][y] = TRUE;
     }
   }
   return mptr;
 }//end buildMazeBlocks
 
+
 void dfs(maze *mptr){
-  LIST *stk = stk_create(); //creates stack
-  int nmCoor[2] = {-1,-1};
-  int nPos = mptr->ystart; //starting x position
-  nmCoor[0] = mptr->ystart; //starting x position
-  nmCoor[1] = mptr->xstart; //starting x position
-  int mPos = mptr->xstart; //starting y position
+  int mPos, nPos;
+  int mTop, nTop; //holds the value at the top of the stack
+  int i,j;
+  mPos = mptr->xstart; //initialize initial m coordinate
+  nPos = mptr->ystart; //initialize initial n coordinate
+  mTop = -1;
+  nTop = -1;
 
-  while(mptr->arr[mPos][nPos] != 'e'){
-    mptr->arr[mPos][nPos] = 'X'; //mark as visited
-    stk_push(stk, mPos, nPos); //initially pushes s onto stack
-    stk_print(stk);
+  //create a stack
+  LIST *stk = stk_create();
 
-    while(!stk_empty(stk)){
-    }
-    
-
-    if(mptr->arr[mPos+1][nPos] != '#' && mptr->arr[mPos+1][nPos] != 'X'){
-      mPos = mPos+1; //move south 
-    }
-    else if(mptr->arr[mPos-1][nPos] != '#' && mptr->arr[mPos-1][nPos] != 'X'){
-      mPos = mPos-1; //move north
-    }
-    else if(mptr->arr[mPos][nPos+1] != '#' && mptr->arr[mPos][nPos+1] != 'X'){
-      nPos = nPos+1; //move west
-    }
-    else if(mptr->arr[mPos][nPos-1] != '#' && mptr->arr[mPos][nPos-1] != 'X'){
-      nPos = nPos-1; //move east 
-    }
-
-    printf("mPos: %i, nPos: %i\n", mPos, nPos);
-    printMaze(mptr);
+  //mark borders as visited
+  for (i=0; i < mptr->xsize+2; i++) {
+    mptr->visited[i][0] = TRUE;
+    mptr->visited[i][mptr->ysize+1] = TRUE;
   }
+
+  for (i=0; i < mptr->ysize+2; i++) {
+    mptr->visited[0][i] = TRUE;
+    mptr->visited[mptr->xsize+1][i] = TRUE;
+  }
+
+  //push the starting position onto the stack
+  stk_push(stk, mptr->xstart, mptr->ystart);
+
+  //mark starting position as visited
+  mptr->visited[mPos][nPos] = TRUE;
+
+  //traverse through stack until stack is empty or end position has been reached
+  while(!stk_isempty(stk) && !endFound(mptr, mPos, nPos)){
+    //check if end has been found
+    if(endFound(mptr, mPos, nPos)){ 
+      return;
+    }
+    //check if surrounding positions are visited
+    if (unVisitedNeighbor(mptr, &mPos, &nPos)) { //check if unvisted and move to unvisted position
+      stk_push(stk, mPos, nPos); //push corrdinates on top of stack
+      markVisited(mptr, mPos, nPos); //mark position a visited
+      if(MAZE_PRINT_ON)
+      printMaze(mptr);
+    } 
+    else {
+      stk_pop(stk);
+      if(debugMode == TRUE){
+        printf("[ %i,%i ]\n", mPos, nPos);
+      }
+      stk_top(stk, &mPos, &nPos);
+    }
+  }
+
+  //end has been found, display solution
+  if(endFound(mptr, mPos, nPos)){
+    printf("Solution Found at position: %i %i!\n", mPos, nPos);
+    //reverse contents of stack to print out solution in order or traversal from start position
+    printf("Path taken:\n");
+    stk_print_reverse(stk);
+  }
+  //end has not been found :(
+  else
+    fprintf(stderr, "The maze has no solution.\n");
+
+  stk_destroy(stk); //frees the stack
 }//end dfs
+
+void printVisited(maze *mptr){
+  int i,j;
+  for( i = 0; i < mptr->xsize+2; i++){
+    for (j = 0; j < mptr->ysize+2; j++){
+      printf(" %i ", mptr->visited[i][j]);
+    }
+    printf("\n");
+  }
+}//end printVisited
 
 void printMaze(maze *mptr){
   int i,j;
@@ -188,3 +226,55 @@ void printMaze(maze *mptr){
     printf("\n");
   }
 }//end printMaze
+
+int unVisitedNeighbor(maze *mptr, int *mTop, int *nTop){
+
+  if(!mptr->visited[*mTop+1][*nTop]){
+    (*mTop)++;
+    return 1;
+  }
+  else if(!mptr->visited[*mTop-1][*nTop]){
+    (*mTop)--;
+    return 1;
+  }
+  else if(!mptr->visited[*mTop][*nTop+1]){
+    (*nTop)++;
+    return 1;
+  }
+  else if(!mptr->visited[*mTop][*nTop-1]){
+    (*nTop)--;
+    return 1;
+  }
+
+  return 0;
+}//end unvistedNeighbor
+
+void markVisited(maze *mptr, int m, int n){
+  if(mptr->arr[m][n] != END_POSITION){
+    mptr->visited[m][n] = TRUE;
+    mptr->arr[m][n] = VISITED;
+  }
+}//end markVisited
+
+int endFound(maze *mptr, int m, int n){
+  if(mptr->arr[m][n] == END_POSITION){
+    return 1;
+  }
+  return 0;
+}
+
+void destroyMaze(maze *mptr){
+  int i, j;
+
+  //free columns from maze board
+  for(i = 0; i < mptr->xsize+2; i++){
+    free(mptr->arr[i]);
+    free(mptr->visited[i]); 
+  }
+  //free rows from maze board
+  free(mptr->arr);
+  free(mptr->visited);
+
+  //free pointer to maze
+  free(mptr);
+}//end destroyMaze

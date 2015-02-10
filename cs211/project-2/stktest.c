@@ -26,7 +26,7 @@ int main (){
 
   int i;
   for(i=0; i<10; i++){
-    stk_push(stk, i);
+    stk_push(stk, i, i);
   }
 
   stk_print(stk);
@@ -34,7 +34,14 @@ int main (){
   stk_print(stk);
   stk_pop(stk);
   stk_print(stk);
-  stk_destroy(stk);
+  printf("top: %i, %i\n", stk_top(stk)[0], stk_top(stk)[1]);
+  stk_reset(stk);
+  stk_print(stk);
+  if(stk_isempty(stk))
+    printf("The stack is empty\n");
+  else
+    printf("The stack is not empty\n");
+  //stk_destroy(stk);
 
   return 0;
 }//end main
