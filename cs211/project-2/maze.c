@@ -158,6 +158,7 @@ void dfs(maze *mptr){
   int mPos, nPos;
   int mTop, nTop; //holds the value at the top of the stack
   int i,j;
+  int count = 0;
   mPos = mptr->xstart; //initialize initial m coordinate
   nPos = mptr->ystart; //initialize initial n coordinate
   mTop = -1;
