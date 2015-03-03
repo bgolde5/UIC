@@ -43,8 +43,8 @@ int *readFile(int *totalAllocated){
 
   //read integers from file
   while(fscanf(ifp, "%i", &tempData) && tempData != -999){ 
-  num_ints++;
-    
+    num_ints++;
+
     //dynamically allocate space for new array of size (n*2)+1
     if(length == *totalAllocated){
       temp = (int*)malloc((((*totalAllocated)*2)+1)*sizeof(int));

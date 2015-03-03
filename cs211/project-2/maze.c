@@ -200,6 +200,10 @@ void dfs(maze *mptr){
     else {
       stk_pop(stk);
       if(debugMode == TRUE){
+        if(count == 0){
+          printf("Debugging Information - All Popped Coordinates\n");
+        }
+        count++;
         printf("[ %i,%i ]\n", mPos, nPos);
       }
       stk_top(stk, &mPos, &nPos);
