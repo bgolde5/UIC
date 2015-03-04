@@ -40,6 +40,13 @@ int main(int argc, char** argv){
 
   stk_print(stk);
 
+  printf("Top of the stack: " FORMAT"\n", stk_top(stk));
+  printf("Pop back of the stack: "FORMAT"\n", stk_pop_back(stk));
+  printf("Pop back of the stack: "FORMAT"\n", stk_pop_back(stk));
+  printf("Pop front of the stack: "FORMAT"\n", stk_pop(stk));
+
+  stk_print(stk);
+
   stk_destroy(stk);
 
   printf("Check dynamic array\n");
@@ -58,6 +65,6 @@ int main(int argc, char** argv){
   arr = cleanArr(arrLength, totalAllocated, arr);
   printArray(arr, arrLength);
 
-  destroyArr(arr);
+  free(arr);
 
 }//end main

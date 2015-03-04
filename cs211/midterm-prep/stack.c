@@ -139,3 +139,33 @@ void stk_print(LIST *l){
   printf("\n");
 
 }//end stk_print 
+
+elemtype stk_top(LIST *l){
+
+  NODE *curr = l->front->next;
+
+  if(curr != NULL)
+    return curr->data; 
+  else{
+    return -1;
+  }
+}//end stk_pop_back
+
+elemtype stk_pop_back(LIST *l){
+
+  elemtype val;
+
+  NODE *curr = l->front;
+  NODE *prev = NULL;
+
+  while(curr->next != NULL){
+    prev = curr;
+    curr = curr->next; 
+  }
+  //retrieve value from back of stack
+  val = curr->data;
+  free(curr);
+  prev->next = NULL;
+
+  return val;
+}//end stk_pop_back

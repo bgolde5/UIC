@@ -70,3 +70,15 @@ extern void stk_reset(LIST *l);
  * description: frees all contents in the stack
  */
 extern void stk_destroy(LIST *l);
+
+/*
+ * function: stk_top
+ * description: returns the top of the stack
+ */
+extern elemtype stk_top(LIST *l);
+
+/*
+ * function: stk_pop_back
+ * description: pops the back of the stack, simulates a queue
+ */
+extern elemtype stk_pop_back(LIST *l);
