@@ -82,3 +82,9 @@ extern elemtype stk_top(LIST *l);
  * description: pops the back of the stack, simulates a queue
  */
 extern elemtype stk_pop_back(LIST *l);
+
+/*
+ * function: stk_isempty
+ * description: returns 1 if the stack is empty, 0 otherwise
+ */
+int stk_isempty(LIST *l);

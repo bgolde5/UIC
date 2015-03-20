@@ -169,3 +169,13 @@ elemtype stk_pop_back(LIST *l){
 
   return val;
 }//end stk_pop_back
+
+int stk_isempty(LIST *l){
+
+  NODE *stk = l->front;
+
+  if(stk->next == NULL)
+    return 1;
+  return 0;
+
+}//end stk_isempty
