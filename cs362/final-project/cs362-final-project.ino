@@ -1,3 +1,6 @@
+#include <SimpleTimer.h>
+#include <SoftwareSerial.h>
+
 /*
   CS362 Final Project - Arduino Security System
   
@@ -11,13 +14,18 @@
  Keypad:
  http://arduino.cc/en/Tutorial/InputPullupSerial
  http://arduino.cc/en/Reference/pinMode
+ SimpleTimer Library:
+ http://playground.arduino.cc/Code/SimpleTimer
  */
  
- /**************Initialize Security System Variable**************/
+ /**************Initialize Security System Variables**************/
  int warningActive = 0;
+ int alarmActive = 0;
+ int standbyActive = 0;
  int systemActive = 0;
  const int ON = 1;
  const int OFF = 0;
+ const int WAIT = 2;
  int currColor[] = {0,0,0};
  int systemCode[] = {1,2,3,4};
  const int DISARM = 0;
@@ -25,11 +33,13 @@
  const int DELAY = 2;
  const int delayAmount = 30; //30 seconds
  int currRGB[] = {0,0,0};
- /*
- //if number corresponding to systemCode 
- is pressed set correspoding index in systemBool to 1
- */
- int systemBool[] = {0,0,0,0};
+ 
+  /**************Initialize GSM Shield**************/
+  SoftwareSerial SIM900(7, 8);
+ 
+ /**************Initialize SimpleTimer Variable**************/
+ SimpleTimer alarmCountdown;
+ int countdownTime = 0;
 
 /**************Initialize Magnet Door Switch**************/
 const int magnetPin = 2;
@@ -42,7 +52,7 @@ const int bluePin = 9;
 #define COMMON_ANODE
 
 /**************Initialize Keypad**************/
-const int keypadPin[] = {4,5,6,7};
+const int keypadPin[] = {4,5,12,7};
 int keypadState = 0;
 
 /**************Initialize Stack Implementation**************/
@@ -56,25 +66,98 @@ void setup() {
   setupMagnet();
   setupLED();
   setupKeypad();
-  activateSystem();
+  setupGSMShield();
+  toggleSystemFlags(ON, OFF, OFF);
+  alarmCountdown.setInterval(1000, countdown);
 }
 
 void loop(){
   checkDoorOpen();
   
+  setCorrectLEDColors();
+  
   if(doorIsOpen()){
-    toggleWarning(ON);
+    toggleSystemFlags(OFF, ON, WAIT);
   }
+  
+  if(countdownTime == 30){
+    toggleAlarm(ON);
+    //set text message
+    //sendSMS();
+    toggleSystemFlags(OFF, OFF, ON);
+  }
+  
   //door has been opened
   if(warningActive){
-   allowKeypadEntry(DISARM); //DISARM
+   alarmCountdown.run();
+   allowKeypadEntry(DISARM);
+  }
+  else if(alarmActive){
+    allowKeypadEntry(DISARM);
   }
   //door is closed and the client wants to exit the building
   else{
     allowKeypadEntry(DELAY); //DELAY ARM by 30 seconds
   }
-  //TODO -- if 30 seconds and warning active
-  //send text message
+}
+
+void sendSMS()
+{
+  SIM900.print("AT+CMGF=1\r");                                                        // AT command to send SMS message
+  delay(100);
+  SIM900.println("AT + CMGS = \"+18474213979\"");                                     // recipient's mobile number, in international format
+  delay(100);
+  SIM900.println("Bradley, you're front door has been opened!");        // message to send
+  delay(100);
+  SIM900.println((char)26);                       // End AT command with a ^Z, ASCII code 26
+  delay(100); 
+  SIM900.println();
+  delay(5000);                                     // give module time to send SMS
+  SIM900power();                                   // turn off module
+}
+
+void SIM900power()
+// software equivalent of pressing the GSM shield "power" button
+{
+  digitalWrite(9, HIGH);
+  delay(1000);
+  digitalWrite(9, LOW);
+  delay(5000);
+}
+
+void setupGSMShield(){
+  SIM900.begin(19200);
+  SIM900power();  
+  delay(30000);  // give time to log on to network. 
+}
+
+void setCorrectLEDColors(){
+  if(standbyActive == 1){
+    setColor(0,0,255);
+  }
+  else if(warningActive == 1){
+    setColor(255,255,0);
+  }
+  else if(alarmActive == 1){
+    setColor(255,0,0);
+  }
+}
+
+void toggleAlarm(int status){
+  if(status == ON){
+    Serial.println("ALARM!");
+    countdownTime = 0;
+  }
+  else if(status == OFF){
+    Serial.print("ALARM OFF!");
+    countdownTime = 0;
+  }
+}
+
+void countdown(){
+  countdownTime++;
+  Serial.print("Countdown: ");
+  Serial.println(countdownTime);
 }
 
 void setupLED(){
@@ -112,8 +195,7 @@ void setColor(int red, int green, int blue)
 }
 
 void activateSystem(){
-  setColor(0,0,255);
-  systemActive = 1;
+  standbyActive = 1;
 }
 
 void checkDoorOpen(){
@@ -129,25 +211,13 @@ int doorIsOpen() {
   return 0;
 }
 
-void toggleWarning(int enable){
-  if(enable){
-    setColor(255, 255, 0);
-    warningActive = 1;
-  }
-  else {
-    warningActive = 0;
-  }
-}
-
 void flashLED(int red, int green, int blue, int time){
     setColor(red, green, blue);
     delay(time);
-    setColor(255, 255, 0);
-    //setColor(currRGB[0], currRGB[1], currRGB[2]);
 }
  
  void allowKeypadEntry(int command){
-   int pin[] = {5, 4, 7, 6};
+   int pin[] = {5, 4, 7, 12};
    
    for(int x=0; x<4; x++){
     //signifying the state of which the button is in by reading the appropriate pin #
@@ -169,18 +239,58 @@ void flashLED(int red, int green, int blue, int time){
   if(codeEnteredCorrectly() && command == DISARM){
       disarm(); //disarm the warning
       resetKeyInput();
+      countdownTime = 0; //reset countdown to 0 seconds
+      toggleSystemFlags(ON, OFF, OFF);
   }
   else if(codeEnteredCorrectly() && command == DELAY){
     delayArm();
     resetKeyInput();
+    countdownTime = 0; //reset countdown to 0 seconds
+    toggleSystemFlags(ON, OFF, OFF);
    }
    else if(fourDigitsEntered() && !codeEnteredCorrectly()){
     //flash long red to indicate unsuccessfull password input
     flashLED(255,0,0,500);
-    setColor(255,255,0); //set led back to yellow to indicate warning is still active
-    //setColor(currRGB[0], currRGB[1], currRGB[2]);
     resetKeyInput();
+    toggleSystemFlags(WAIT,WAIT,WAIT);
    }
+ }
+ 
+ void toggleSystemFlags(int standby, int warning, int alarm){
+   
+   //system standby flag
+   if(standby == ON){
+     standbyActive = ON;
+   }
+   else if(standby == WAIT){
+     //do nothing
+   }
+   else {
+     standbyActive = OFF;
+   }
+   
+   //system warning flag
+   if(warning == ON){
+     warningActive = ON;
+   }
+   else if(warning == WAIT){
+     //do nothing
+   }
+   else {
+     warningActive = OFF;
+   }
+   
+   //system alarm flag
+   if(alarm == ON){
+     alarmActive = ON;
+   }
+   else if(alarm == WAIT){
+     //do nothing
+   }
+   else {
+     alarmActive = OFF;
+   }
+   
  }
  
  //delay for specified time
@@ -201,8 +311,7 @@ void flashLED(int red, int green, int blue, int time){
  void disarm(){
     //flash long green to indicate successfull password input to client
     flashLED(0,255,0,500);
-    warningActive = 0;
-    setColor(0,0,255); //set led back to blue
+    toggleSystemFlags(ON, OFF, OFF);
     resetKeyInput();
  }
  
