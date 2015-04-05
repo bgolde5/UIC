@@ -223,12 +223,9 @@ void flashLED(int red, int green, int blue, int time){
     //signifying the state of which the button is in by reading the appropriate pin #
     keypadState = digitalRead(keypadPin[x]);
     
-    // check if the pushbutton on the keypad is pressed.
-    // if it is, the keypadState is LOW:
-    
-    
-    
-    //button 3
+  // check if the pushbutton on the keypad is pressed.
+  // if it is, the keypadState is LOW:
+  //button 3
     if (keypadState == LOW && keypadPin[x] == 10) {
       Serial.println("BTN 3");
       //int currKey = y + 1;
@@ -238,13 +235,13 @@ void flashLED(int red, int green, int blue, int time){
     }
     
     //button 4
-    //if (keypadState == LOW && keypadPin[x] == 9) {      
-      //Serial.println("BTN 4");
+    if (keypadState == LOW && keypadPin[x] == 9) {      
+      Serial.println("BTN 4");
       //int currKey = y + 1;
       //inputKey(currKey); //push current inputted key onto the stack
-      //flashLED(0,255,0,150); //flash green to indicate key is pressed
+      flashLED(0,255,0,150); //flash green to indicate key is pressed
       //printStk(); //print the stack
-    //}
+    }
     
     //button 1
     if (keypadState == LOW && keypadPin[x] == 12) {    
