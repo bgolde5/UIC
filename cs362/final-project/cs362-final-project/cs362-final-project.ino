@@ -46,13 +46,13 @@ const int magnetPin = 2;
 int magnetState = 0;
 
 /**************Initialize Tricolor Anode LED**************/
-const int redPin = 11;
-const int greenPin = 10;
-const int bluePin = 9;
+const int redPin = 3;
+const int greenPin = 4;
+const int bluePin = 5;
 #define COMMON_ANODE
 
 /**************Initialize Keypad**************/
-const int keypadPin[] = {4,5,12,7};
+const int keypadPin[] = {9,10,11,12};
 int keypadState = 0;
 
 /**************Initialize Stack Implementation**************/
@@ -217,7 +217,7 @@ void flashLED(int red, int green, int blue, int time){
 }
  
  void allowKeypadEntry(int command){
-   int pin[] = {5, 4, 7, 12};
+   int pin[] = {9, 10, 11, 12};
    
    for(int x=0; x<4; x++){
     //signifying the state of which the button is in by reading the appropriate pin #
@@ -225,13 +225,43 @@ void flashLED(int red, int green, int blue, int time){
     
     // check if the pushbutton on the keypad is pressed.
     // if it is, the keypadState is LOW:
-    for(int y=0; y<4; y++){
-      if(keypadState == LOW && keypadPin[x] == pin[y]){
-        int currKey = y + 1;
-        inputKey(currKey); //push current inputted key onto the stack
-        flashLED(0,255,0,150); //flash green to indicate key is pressed
-        printStk(); //print the stack
-      }
+    
+    
+    
+    //button 3
+    if (keypadState == LOW && keypadPin[x] == 10) {
+      Serial.println("BTN 3");
+      //int currKey = y + 1;
+      //inputKey(currKey); //push current inputted key onto the stack
+      flashLED(0,255,0,150); //flash green to indicate key is pressed
+      //printStk(); //print the stack
+    }
+    
+    //button 4
+    //if (keypadState == LOW && keypadPin[x] == 9) {      
+      //Serial.println("BTN 4");
+      //int currKey = y + 1;
+      //inputKey(currKey); //push current inputted key onto the stack
+      //flashLED(0,255,0,150); //flash green to indicate key is pressed
+      //printStk(); //print the stack
+    //}
+    
+    //button 1
+    if (keypadState == LOW && keypadPin[x] == 12) {    
+      Serial.println("BTN 1");
+      //int currKey = y + 1;
+      //inputKey(currKey); //push current inputted key onto the stack
+      flashLED(0,255,0,150); //flash green to indicate key is pressed
+      //printStk(); //print the stack
+    }
+	
+	//button 2
+    if (keypadState == LOW && keypadPin[x] == 11) {     
+      Serial.println("BTN 2");
+      //int currKey = y + 1;
+      //inputKey(currKey); //push current inputted key onto the stack
+      flashLED(0,255,0,150); //flash green to indicate key is pressed
+      //printStk(); //print the stack
     }
   }
   delay(250);
