@@ -27,7 +27,8 @@
  const int OFF = 0;
  const int WAIT = 2;
  int currColor[] = {0,0,0};
- int systemCode[] = {1,2,3,4};
+ int systemCode[] = {1,2,3};
+ const int codeLength = 3;
  const int DISARM = 0;
  const int ARM = 1;
  const int DELAY = 2;
@@ -228,37 +229,37 @@ void flashLED(int red, int green, int blue, int time){
   //button 3
     if (keypadState == LOW && keypadPin[x] == 10) {
       Serial.println("BTN 3");
-      //int currKey = y + 1;
-      //inputKey(currKey); //push current inputted key onto the stack
+      int currKey = 3;
+      inputKey(currKey); //push current inputted key onto the stack
       flashLED(0,255,0,150); //flash green to indicate key is pressed
-      //printStk(); //print the stack
+      printStk(); //print the stack
     }
     
     //button 4
-    if (keypadState == LOW && keypadPin[x] == 9) {      
-      Serial.println("BTN 4");
+    //if (keypadState == LOW && keypadPin[x] == 9) {      
+      //Serial.println("BTN 4");
       //int currKey = y + 1;
       //inputKey(currKey); //push current inputted key onto the stack
-      flashLED(0,255,0,150); //flash green to indicate key is pressed
+      //flashLED(0,255,0,150); //flash green to indicate key is pressed
       //printStk(); //print the stack
-    }
+    //}
     
     //button 1
     if (keypadState == LOW && keypadPin[x] == 12) {    
       Serial.println("BTN 1");
-      //int currKey = y + 1;
-      //inputKey(currKey); //push current inputted key onto the stack
+      int currKey = 1;
+      inputKey(currKey); //push current inputted key onto the stack
       flashLED(0,255,0,150); //flash green to indicate key is pressed
-      //printStk(); //print the stack
+      printStk(); //print the stack
     }
 	
 	//button 2
     if (keypadState == LOW && keypadPin[x] == 11) {     
       Serial.println("BTN 2");
-      //int currKey = y + 1;
-      //inputKey(currKey); //push current inputted key onto the stack
+      int currKey = 2;
+      inputKey(currKey); //push current inputted key onto the stack
       flashLED(0,255,0,150); //flash green to indicate key is pressed
-      //printStk(); //print the stack
+      printStk(); //print the stack
     }
   }
   delay(250);
@@ -360,12 +361,12 @@ void flashLED(int red, int green, int blue, int time){
  int stkMatchesSystemCode(){
    int correct = 0;
    
-   for(int i=0; i<4; i++){
+   for(int i=0; i<codeLength; i++){
      if(stack[i] == systemCode[i]){ //check that contents in stack are the same as the system code
        correct++;
      }
    }
-   if(correct == 4){
+   if(correct == codeLength){
      return 1;
    }
    else{
@@ -379,7 +380,7 @@ void flashLED(int red, int green, int blue, int time){
  
  void printStk(){
    int i;
-   for(i=0; i<4; i++){
+   for(i=0; i<codeLength; i++){
      Serial.print("[");
      Serial.print(stack[i]);
      Serial.print("]");
@@ -396,7 +397,7 @@ void flashLED(int red, int green, int blue, int time){
  }
  
  int stkIsFull(){
-   if(top >= 3){
+   if(top >= codeLength-1){
      return 1;
    }
    return 0;
@@ -404,7 +405,7 @@ void flashLED(int red, int green, int blue, int time){
  
  void resetStk(){
    int i;
-   for(i=0; i<4; i++){
+   for(i=0; i<codeLength; i++){
      stack[i] = 0;
    }
    top = -1;
