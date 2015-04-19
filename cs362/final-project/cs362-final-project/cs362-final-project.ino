@@ -109,6 +109,7 @@ void sendSMS()
   SIM900.println("AT + CMGS = \"+18474213979\"");                                     // recipient's mobile number, in international format
   delay(100);
   SIM900.println("Bradley, you're front door has been opened!");        // message to send
+  Serial.println("Text message sent!");
   delay(100);
   SIM900.println((char)26);                       // End AT command with a ^Z, ASCII code 26
   delay(100); 
@@ -331,7 +332,7 @@ void flashLED(int red, int green, int blue, int time){
         delay(500); //delay .5 seconds
         setColor(0,0,255); //change color to blue
         i++;
-        Serial.print("Delary Arm: ");
+        Serial.print("Delay Arm: ");
         Serial.println(i);
       }
  }
