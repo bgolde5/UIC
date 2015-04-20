@@ -1,27 +1,20 @@
-// Example 55.7
- 
 #include <SoftwareSerial.h> 
 char inchar; // Will hold the incoming character from the GSM shield
 SoftwareSerial SIM900(7, 8);
- 
-int led1 = 10;
-int led2 = 11;
-int led3 = 12;
-int led4 = 13;
- 
+
+/**************Initialize Tricolor Anode LED**************/
+const int redPin = 3;
+const int greenPin = 4;
+const int bluePin = 5;
+int currRGB[] = {0,0,0};
+#define COMMON_ANODE
+
 void setup()
 {
   Serial.begin(19200);
   // set up the digital pins to control
-  pinMode(led1, OUTPUT);
-  pinMode(led2, OUTPUT);
-  pinMode(led3, OUTPUT);
-  pinMode(led4, OUTPUT);
-  digitalWrite(led1, LOW);
-  digitalWrite(led2, LOW);
-  digitalWrite(led3, LOW);
-  digitalWrite(led4, LOW);
- 
+  setupLED();
+
   // wake up the GSM shield
   SIM900power(); 
   SIM900.begin(19200);
@@ -33,7 +26,7 @@ void setup()
   delay(100);
   Serial.println("Ready...");
 }
- 
+
 void SIM900power()
 // software equivalent of pressing the GSM shield "power" button
 {
@@ -42,7 +35,7 @@ void SIM900power()
   digitalWrite(9, LOW);
   delay(7000);
 }
- 
+
 void loop() 
 {
   //If a character comes in from the cellular module...
@@ -52,7 +45,7 @@ void loop()
     if (inchar=='#')
     {
       delay(10);
- 
+
       inchar=SIM900.read(); 
       if (inchar=='a')
       {
@@ -60,58 +53,36 @@ void loop()
         inchar=SIM900.read();
         if (inchar=='0')
         {
-          digitalWrite(led1, LOW);
+          setColor(255,0,0);
         } 
         else if (inchar=='1')
         {
-          digitalWrite(led1, HIGH);
+          setColor(0,0,0);
         }
-        delay(10);
-        inchar=SIM900.read(); 
-        if (inchar=='b')
-        {
-          inchar=SIM900.read();
-          if (inchar=='0')
-          {
-            digitalWrite(led2, LOW);
-          } 
-          else if (inchar=='1')
-          {
-            digitalWrite(led2, HIGH);
-          }
-          delay(10);
-          inchar=SIM900.read(); 
-          if (inchar=='c')
-          {
-            inchar=SIM900.read();
-            if (inchar=='0')
-            {
-              digitalWrite(led3, LOW);
-            } 
-            else if (inchar=='1')
-            {
-              digitalWrite(led3, HIGH);
-            }
-            delay(10);
-            inchar=SIM900.read(); 
-            if (inchar=='d')
-            {
-              delay(10);
-              inchar=SIM900.read();
-              if (inchar=='0')
-              {
-                digitalWrite(led4, LOW);
-              } 
-              else if (inchar=='1')
-              {
-                digitalWrite(led4, HIGH);
-              }
-              delay(10);
-            }
-          }
           SIM900.println("AT+CMGD=1,4"); // delete all SMS
-        }
       }
     }
   }
+}//end loop
+
+void setColor(int red, int green, int blue)
+{
+  #ifdef COMMON_ANODE
+    red = 255 - red;
+    green = 255 - green;
+    blue = 255 - blue;
+  #endif
+  currRGB[0] = red;
+  currRGB[1] = green;
+  currRGB[2] = blue;
+  analogWrite(redPin, red);
+  analogWrite(greenPin, green);
+  analogWrite(bluePin, blue);  
+}
+
+void setupLED(){
+  // initialize the ANNODE pins as an output
+  pinMode(redPin, OUTPUT);    
+  pinMode(greenPin, OUTPUT);
+  pinMode(bluePin, OUTPUT);
 }
