@@ -53,11 +53,13 @@ void loop()
         inchar=SIM900.read();
         if (inchar=='0')
         {
+          Serial.println("RED");
           setColor(255,0,0);
         } 
         else if (inchar=='1')
         {
-          setColor(0,0,0);
+          Serial.println("BLUE");
+          setColor(0,0,255);
         }
           SIM900.println("AT+CMGD=1,4"); // delete all SMS
       }
