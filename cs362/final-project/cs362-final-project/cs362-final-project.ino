@@ -38,7 +38,11 @@
   /**************Initialize GSM Shield**************/
   SoftwareSerial SIM900(7, 8);
   char inchar; // Will hold the incoming character from the GSM shield
- 
+  String userPhone = "+18474213979"; //type your phone number here
+  String neighborPhone = "+1234567890"; //type your neighbor's phone number here
+  const int USER = 0;
+  const int NEIGHBOR = 1;
+  
  /**************Initialize SimpleTimer Variable**************/
  SimpleTimer alarmCountdown;
  int countdownTime = 0;
@@ -86,7 +90,8 @@ void loop(){
   if(countdownTime == 30){
     toggleAlarm(ON);
     //set text message
-    sendSMS();
+    sendSMS(USER);
+    //sendSMS(NEIGHBOR);
     toggleSystemFlags(OFF, OFF, ON);
   }
   
@@ -105,14 +110,24 @@ void loop(){
   }
 }
 
-void sendSMS()
+void sendSMS(int type)
 {
   SIM900.print("AT+CMGF=1\r");//AT command to send SMS message
   delay(100);
-  SIM900.println("AT + CMGS = \"+18474213979\""); // recipient's mobile number, in international format
-  delay(100);
-  SIM900.println("Bradley, you're front door has been opened!"
-            " Reply with OFF to turn the Alarm off"); // message to send
+  
+  if(type == USER){
+    SIM900.println("AT + CMGS = \""+ userPhone +"\""); // recipient's mobile number, in international format
+    delay(100);
+    SIM900.println("Bradley, you're front door has been opened!"
+                   " Reply with OFF to turn the Alarm off"); // message to send
+  }
+  
+  else {
+    SIM900.println("AT + CMGS = \""+ neighborPhone +"\""); // recipient's mobile number, in international format
+    delay(100);
+    SIM900.println("You're neighbor's front door has been opened!"); // message to send  
+  }
+  
   Serial.println("Text message sent!");
   delay(100);
   SIM900.println((char)26); // End AT command with a ^Z, ASCII code 26
@@ -183,6 +198,10 @@ void setCorrectLEDColors(){
   else if(alarmActive == 1){
     setColor(255,0,0);
   }
+}
+//TODO
+void checkNeighborsSystem(){
+  
 }
 
 void toggleAlarm(int status){
