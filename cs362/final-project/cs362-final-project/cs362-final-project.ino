@@ -37,6 +37,7 @@
  
   /**************Initialize GSM Shield**************/
   SoftwareSerial SIM900(7, 8);
+  char inchar; // Will hold the incoming character from the GSM shield
  
  /**************Initialize SimpleTimer Variable**************/
  SimpleTimer alarmCountdown;
@@ -62,12 +63,13 @@ int stack[] = {0,0,0,0};
 
 
 void setup() {
-  // initialize the Serial Monitor @ 9600
-  Serial.begin(9600);  
+  // initialize the Serial Monitor @ 19200
+  Serial.begin(19200);  
   setupMagnet();
   setupLED();
   setupKeypad();
   setupGSMShield();
+  setupControlFromPhone();
   toggleSystemFlags(ON, OFF, OFF);
   alarmCountdown.setInterval(1000, countdown);
 }
@@ -84,7 +86,7 @@ void loop(){
   if(countdownTime == 30){
     toggleAlarm(ON);
     //set text message
-    //sendSMS();
+    sendSMS();
     toggleSystemFlags(OFF, OFF, ON);
   }
   
@@ -95,6 +97,7 @@ void loop(){
   }
   else if(alarmActive){
     allowKeypadEntry(DISARM);
+    readIncomingText();
   }
   //door is closed and the client wants to exit the building
   else{
@@ -104,18 +107,19 @@ void loop(){
 
 void sendSMS()
 {
-  SIM900.print("AT+CMGF=1\r");                                                        // AT command to send SMS message
+  SIM900.print("AT+CMGF=1\r");//AT command to send SMS message
   delay(100);
-  SIM900.println("AT + CMGS = \"+18474213979\"");                                     // recipient's mobile number, in international format
+  SIM900.println("AT + CMGS = \"+18474213979\""); // recipient's mobile number, in international format
   delay(100);
-  SIM900.println("Bradley, you're front door has been opened!");        // message to send
+  SIM900.println("Bradley, you're front door has been opened!"
+            " Reply with OFF to turn the Alarm off"); // message to send
   Serial.println("Text message sent!");
   delay(100);
-  SIM900.println((char)26);                       // End AT command with a ^Z, ASCII code 26
+  SIM900.println((char)26); // End AT command with a ^Z, ASCII code 26
   delay(100); 
   SIM900.println();
-  delay(5000);                                     // give module time to send SMS
-  SIM900power();                                   // turn off module
+  delay(5000);  // give module time to send SMS
+  SIM900power();   // turn off module
 }
 
 void SIM900power()
@@ -127,10 +131,46 @@ void SIM900power()
   delay(5000);
 }
 
+void setupControlFromPhone(){
+  SIM900.print("AT+CMGF=1\r");  // set SMS mode to text
+  delay(100);
+  SIM900.print("AT+CNMI=2,2,0,0,0\r"); 
+  // blurt out contents of new SMS upon receipt to the GSM shield's serial out
+  delay(100);
+  Serial.println("Ready...");
+}
+
+void readIncomingText(){
+  //If a character comes in from the cellular module...
+  if(SIM900.available() >0)
+  {
+    inchar=SIM900.read(); 
+    if (inchar=='O')
+    {
+      delay(10);
+
+      inchar=SIM900.read(); 
+      if (inchar=='F')
+      {
+        delay(10);
+        
+        inchar=SIM900.read();
+        if (inchar=='F')
+        {
+          Serial.println("Alarm Deactivated via Text");
+          toggleAlarm(OFF);
+          toggleSystemFlags(ON, OFF, OFF);
+        } 
+          SIM900.println("AT+CMGD=1,4"); // delete all SMS
+      }
+    }
+  }
+}
+
 void setupGSMShield(){
   SIM900.begin(19200);
   SIM900power();  
-  delay(30000);  // give time to log on to network. 
+  delay(30000);  // give time to log on to network.
 }
 
 void setCorrectLEDColors(){
@@ -236,7 +276,7 @@ void flashLED(int red, int green, int blue, int time){
       printStk(); //print the stack
     }
     
-    //button 4
+    //button 4 DISABLED DUE TO BUGGY BEHAVIOR
     //if (keypadState == LOW && keypadPin[x] == 9) {      
       //Serial.println("BTN 4");
       //int currKey = y + 1;
