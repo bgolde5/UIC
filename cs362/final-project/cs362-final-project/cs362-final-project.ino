@@ -96,8 +96,8 @@ void loop(){
   if(countdownTime == 30){
     toggleAlarm(ON);
     //set text message
-    //sendSMS(USER);
-    //sendSMS(NEIGHBOR);
+    sendSMS(USER);
+    sendSMS(NEIGHBOR);
     toggleSystemFlags(OFF, OFF, ON, OFF);
   }
   
