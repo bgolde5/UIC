@@ -33,6 +33,7 @@ const int ledPin =  13;      // the number of the LED pin
 int buttonState = 0;         // variable for reading the pushbutton status
 
 void setup() {
+  Serial.begin(9600);
   // initialize the LED pin as an output:
   pinMode(ledPin, OUTPUT);      
   // initialize the pushbutton pin as an input:
@@ -46,11 +47,13 @@ void loop(){
   // check if the pushbutton is pressed.
   // if it is, the buttonState is HIGH:
   if (buttonState == HIGH) {     
-    // turn LED on:    
+    // turn LED on:
+    Serial.println("Door is closed");    
     digitalWrite(ledPin, HIGH);  
   } 
   else {
     // turn LED off:
+    Serial.println("Door is open");
     digitalWrite(ledPin, LOW); 
   }
 }
