@@ -23,6 +23,7 @@
  int alarmActive = 0;
  int standbyActive = 0;
  int systemActive = 0;
+ int neighborAlarmActive = 0;
  const int ON = 1;
  const int OFF = 0;
  const int WAIT = 2;
@@ -39,9 +40,10 @@
   SoftwareSerial SIM900(7, 8);
   char inchar; // Will hold the incoming character from the GSM shield
   String userPhone = "+18474213979"; //type your phone number here
-  String neighborPhone = "+1234567890"; //type your neighbor's phone number here
+  String neighborArduino = "+1234567890"; //type your neighbor's phone number here
   const int USER = 0;
   const int NEIGHBOR = 1;
+  const int USER_WARNING = 2;
   
  /**************Initialize SimpleTimer Variable**************/
  SimpleTimer alarmCountdown;
@@ -67,32 +69,36 @@ int stack[] = {0,0,0,0};
 
 
 void setup() {
-  // initialize the Serial Monitor @ 19200
-  Serial.begin(19200);  
-  setupMagnet();
   setupLED();
-  setupKeypad();
-  setupGSMShield();
+  // initialize the Serial Monitor @ 19200
+  Serial.begin(19200); 
+  setupGSMShield(); 
   setupControlFromPhone();
-  toggleSystemFlags(ON, OFF, OFF);
+  setupMagnet();
+  setupKeypad();  
+  toggleSystemFlags(ON, OFF, OFF, OFF);
   alarmCountdown.setInterval(1000, countdown);
 }
 
 void loop(){
   checkDoorOpen();
   
+  if(neighborAlarmActive == OFF){
+    readIncomingText(); //check if neighbor's alarm has been activated
+  }
+  
   setCorrectLEDColors();
   
   if(doorIsOpen()){
-    toggleSystemFlags(OFF, ON, WAIT);
+    toggleSystemFlags(OFF, ON, WAIT, OFF);
   }
   
   if(countdownTime == 30){
     toggleAlarm(ON);
     //set text message
-    sendSMS(USER);
+    //sendSMS(USER);
     //sendSMS(NEIGHBOR);
-    toggleSystemFlags(OFF, OFF, ON);
+    toggleSystemFlags(OFF, OFF, ON, OFF);
   }
   
   //door has been opened
@@ -119,13 +125,23 @@ void sendSMS(int type)
     SIM900.println("AT + CMGS = \""+ userPhone +"\""); // recipient's mobile number, in international format
     delay(100);
     SIM900.println("Bradley, you're front door has been opened!"
-                   " Reply with OFF to turn the Alarm off"); // message to send
+                   " Reply with #OFF to turn the Alarm off"); // message to send
   }
   
-  else {
-    SIM900.println("AT + CMGS = \""+ neighborPhone +"\""); // recipient's mobile number, in international format
+  else if(type == USER_WARNING){
+    SIM900.println("AT + CMGS = \""+ userPhone +"\""); // recipient's mobile number, in international format
     delay(100);
-    SIM900.println("You're neighbor's front door has been opened!"); // message to send  
+    SIM900.println("Bradley, you're neighbor's front door has been opened!"
+                   " Reply with #OFF to turn your system's warning off."); // message to send
+  }
+  
+  else if(type == NEIGHBOR){
+    SIM900.println("AT + CMGS = \""+ neighborArduino +"\""); // recipient's mobile number, in international format
+    delay(100);
+    SIM900.println("#NEIGHBOR"); // message to send
+  }
+  else {
+    //do nothing
   }
   
   Serial.println("Text message sent!");
@@ -147,6 +163,7 @@ void SIM900power()
 }
 
 void setupControlFromPhone(){
+  delay(30000);
   SIM900.print("AT+CMGF=1\r");  // set SMS mode to text
   delay(100);
   SIM900.print("AT+CNMI=2,2,0,0,0\r"); 
@@ -159,33 +176,88 @@ void readIncomingText(){
   //If a character comes in from the cellular module...
   if(SIM900.available() >0)
   {
-    inchar=SIM900.read(); 
-    if (inchar=='O')
+    inchar=SIM900.read();
+    if (inchar == '#')
     {
       delay(10);
-
+      
       inchar=SIM900.read(); 
-      if (inchar=='F')
+      if (inchar=='O')
+      {
+        delay(10);
+  
+        inchar=SIM900.read(); 
+        if (inchar=='F')
+        {
+          delay(10);
+          
+          inchar=SIM900.read();
+          if (inchar=='F')
+          {
+            Serial.println("Alarm Deactivated via Text");
+            toggleAlarm(OFF);
+            toggleSystemFlags(ON, OFF, OFF, OFF);
+          } 
+        }
+      }
+      else if (inchar=='N')
       {
         delay(10);
         
         inchar=SIM900.read();
-        if (inchar=='F')
+        if (inchar=='E')
         {
-          Serial.println("Alarm Deactivated via Text");
-          toggleAlarm(OFF);
-          toggleSystemFlags(ON, OFF, OFF);
-        } 
-          SIM900.println("AT+CMGD=1,4"); // delete all SMS
+          delay(10);
+          
+          inchar=SIM900.read();
+          if (inchar=='I')
+          {
+            delay(10);
+            
+            inchar=SIM900.read();
+            {
+              if (inchar=='G')
+              {
+                delay(10);
+            
+                inchar=SIM900.read();
+                if (inchar=='H')
+                {
+                  delay(10);
+                  
+                  inchar=SIM900.read();
+                  if (inchar=='B')
+                  {
+                    delay(10);
+                    
+                    inchar=SIM900.read();
+                    if (inchar=='O')
+                    {
+                      delay(10);
+                      
+                      inchar=SIM900.read();
+                      if (inchar=='R')
+                      {
+                        Serial.println("Neighbor's alarm has been activated.");
+                        toggleSystemFlags(OFF, OFF, OFF, ON);
+                        sendSMS(USER_WARNING);
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
       }
+      SIM900.println("AT+CMGD=1,4"); // delete all SMS
     }
   }
 }
 
 void setupGSMShield(){
+  SIM900power();
   SIM900.begin(19200);
-  SIM900power();  
-  delay(30000);  // give time to log on to network.
 }
 
 void setCorrectLEDColors(){
@@ -198,10 +270,9 @@ void setCorrectLEDColors(){
   else if(alarmActive == 1){
     setColor(255,0,0);
   }
-}
-//TODO
-void checkNeighborsSystem(){
-  
+  else if(neighborAlarmActive == 1){
+    setColor(255,165,0);
+  }
 }
 
 void toggleAlarm(int status){
@@ -328,23 +399,23 @@ void flashLED(int red, int green, int blue, int time){
       disarm(); //disarm the warning
       resetKeyInput();
       countdownTime = 0; //reset countdown to 0 seconds
-      toggleSystemFlags(ON, OFF, OFF);
+      toggleSystemFlags(ON, OFF, OFF, OFF);
   }
   else if(codeEnteredCorrectly() && command == DELAY){
     delayArm();
     resetKeyInput();
     countdownTime = 0; //reset countdown to 0 seconds
-    toggleSystemFlags(ON, OFF, OFF);
+    toggleSystemFlags(ON, OFF, OFF, OFF);
    }
    else if(fourDigitsEntered() && !codeEnteredCorrectly()){
     //flash long red to indicate unsuccessfull password input
     flashLED(255,0,0,500);
     resetKeyInput();
-    toggleSystemFlags(WAIT,WAIT,WAIT);
+    toggleSystemFlags(WAIT,WAIT,WAIT,WAIT);
    }
  }
  
- void toggleSystemFlags(int standby, int warning, int alarm){
+ void toggleSystemFlags(int standby, int warning, int alarm, int neighbor){
    
    //system standby flag
    if(standby == ON){
@@ -379,6 +450,17 @@ void flashLED(int red, int green, int blue, int time){
      alarmActive = OFF;
    }
    
+   //neighbor's alarm flag
+   if(neighbor == ON){
+     neighborAlarmActive = ON;
+   }
+   else if(neighbor == WAIT){
+     //do nothing
+   }
+   else {
+     neighborAlarmActive = OFF;
+   }
+   
  }
  
  //delay for specified time
@@ -399,7 +481,7 @@ void flashLED(int red, int green, int blue, int time){
  void disarm(){
     //flash long green to indicate successfull password input to client
     flashLED(0,255,0,500);
-    toggleSystemFlags(ON, OFF, OFF);
+    toggleSystemFlags(ON, OFF, OFF, OFF);
     resetKeyInput();
  }
  
