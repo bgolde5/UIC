@@ -1,0 +1,27 @@
+# this file invokes data4.txt
+# which invokes this file causing a potential 
+# infinite recursive loop
+i 2 5
+i 3 6
+i 4 3
+i 4 6
+i 6 7
+i 5 4
+i 5 7
+i 7 6
+l
+t 1 2
+t 1 5
+t 5 1
+t 2 6
+f data4.txt
+t 7 2
+t 5 5
+i 6 1
+t 7 2
+t 5 5
+d 6 1
+t 7 2
+t 5 5  
+t 1 6
+

@@ -40,7 +40,7 @@
   SoftwareSerial SIM900(7, 8);
   char inchar; // Will hold the incoming character from the GSM shield
   String userPhone = "+18474213979"; //type your phone number here
-  String neighborArduino = "+1234567890"; //type your neighbor's phone number here
+  String neighborArduino = "+13129289735"; //type your neighbor's phone number here
   const int USER = 0;
   const int NEIGHBOR = 1;
   const int USER_WARNING = 2;
