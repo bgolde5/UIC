@@ -1,0 +1,136 @@
+﻿--DROP ALL CURRENT TABLES IF THEY EXIST--
+IF OBJECT_ID (N'dbo.SongDetails', N'U') IS NOT NULL
+DROP TABLE dbo.SongDetails;
+
+IF OBJECT_ID (N'dbo.AlbumDetails', N'U') IS NOT NULL
+DROP TABLE dbo.AlbumDetails;
+
+IF OBJECT_ID (N'dbo.PurchaseDetails', N'U') IS NOT NULL
+DROP TABLE dbo.PurchaseDetails;
+
+IF OBJECT_ID (N'dbo.PurchaseTypes', N'U') IS NOT NULL
+DROP TABLE dbo.PurchaseTypes;
+
+IF OBJECT_ID (N'dbo.PlaylistDetails', N'U') IS NOT NULL
+DROP TABLE dbo.PlaylistDetails;
+
+IF OBJECT_ID (N'dbo.Playlists', N'U') IS NOT NULL
+DROP TABLE dbo.Playlists;
+
+IF OBJECT_ID (N'dbo.Reviews', N'U') IS NOT NULL
+DROP TABLE dbo.Reviews;
+
+IF OBJECT_ID (N'dbo.ReviewDetails', N'U') IS NOT NULL
+DROP TABLE dbo.ReviewDetails;
+
+IF OBJECT_ID (N'dbo.Artists', N'U') IS NOT NULL
+DROP TABLE dbo.Artists;
+
+IF OBJECT_ID (N'dbo.Songs', N'U') IS NOT NULL
+DROP TABLE dbo.Songs;
+
+IF OBJECT_ID (N'dbo.Albums', N'U') IS NOT NULL
+DROP TABLE dbo.Albums;
+
+IF OBJECT_ID (N'dbo.Genres', N'U') IS NOT NULL
+DROP TABLE dbo.Genres;
+
+IF OBJECT_ID (N'dbo.Purchases', N'U') IS NOT NULL
+DROP TABLE dbo.Purchases;
+
+IF OBJECT_ID (N'dbo.Users', N'U') IS NOT NULL
+DROP TABLE dbo.Users;
+
+--CREATE NEW TABLES--
+
+CREATE TABLE Artists (
+	ArtistID INT IDENTITY(1,1) PRIMARY KEY,
+	ArtistName NVARCHAR(32) NOT NULL,
+	YearBorn SMALLINT NOT NULL
+);
+
+CREATE TABLE Genres (
+	GenreID SMALLINT IDENTITY(1,1) PRIMARY KEY,
+	Genre NVARCHAR(32) NOT NULL
+);
+
+CREATE TABLE Songs (
+	SongID INT IDENTITY(1,1) PRIMARY KEY,
+	SongName NVARCHAR(64) NOT NULL,
+	SongYearRel TINYINT NOT NULL,
+	Duration TIME NOT NULL,
+	GenreID SMALLINT FOREIGN KEY REFERENCES Genres(GenreID),
+	SongPrice SMALLMONEY NOT NULL
+);
+
+CREATE TABLE SongDetails (
+	SongID INT FOREIGN KEY REFERENCES Songs(SongID),
+	ArtistID INT FOREIGN KEY REFERENCES Artists(ArtistID),
+	ArtistRole TINYINT NOT NULL --1 for Lead, 2 for Other
+	PRIMARY KEY (SongID, ArtistID)
+);
+
+CREATE TABLE Albums (
+	AlbumID INT IDENTITY(1,1) PRIMARY KEY,
+	AlbumName NVARCHAR(32) NOT NULL,
+	AlbumYearRel TINYINT NOT NULL,
+	AlbumPrice SMALLMONEY NOT NULL
+);
+
+CREATE TABLE AlbumDetails (
+	AlbumID INT FOREIGN KEY REFERENCES Albums(AlbumID),
+	SongID INT FOREIGN KEY REFERENCES Songs(SongID)
+);
+
+CREATE TABLE Users (
+	UserID INT IDENTITY(1,1) PRIMARY KEY,
+	FirstName NVARCHAR(32) NOT NULL,
+	LastName NVARCHAR(32) NOT NULL,
+	Email NVARCHAR(32) NOT NULL,
+	Passwd NVARCHAR(16) NOT NULL,
+	AccountBal SMALLMONEY
+);
+
+CREATE TABLE Purchases (
+	PurchaseID INT IDENTITY(1,1) PRIMARY KEY,
+	UserID INT FOREIGN KEY REFERENCES Users(UserID),
+	AmountPaid SMALLMONEY NOT NULL,
+	PurchaseDate date NOT NULL
+);
+
+CREATE TABLE PurchaseTypes (
+	PurchaseTypeID INT IDENTITY(1,1) PRIMARY KEY,
+	PurchaseType TINYINT NOT NULL --1 for Song, 2 for Album
+);
+
+CREATE TABLE PurchaseDetails (
+	PurchaseID INT FOREIGN KEY REFERENCES Purchases(PurchaseID),
+	UserID INT FOREIGN KEY REFERENCES Users(UserID),
+	PurchaseTypeID INT FOREIGN KEY REFERENCES PurchaseTypes(PurchaseTypeID),
+	PRIMARY KEY (PurchaseID, UserID)
+);
+
+CREATE TABLE Playlists (
+	PlaylistID INT IDENTITY(1,1) PRIMARY KEY,
+	UserID INT FOREIGN KEY REFERENCES Users(UserID),
+	PlaylistName NVARCHAR(128) NOT NULL
+);
+
+CREATE TABLE PlaylistDetails (
+	PlaylistID INT FOREIGN KEY REFERENCES Playlists(PlaylistID),
+	UserID INT FOREIGN KEY REFERENCES Users(UserID),
+	SongID INT FOREIGN KEY REFERENCES Songs(SongID),
+	PRIMARY KEY (PlaylistID, UserID)
+);
+
+CREATE TABLE Reviews (
+	ReviewID INT IDENTITY(1,1) PRIMARY KEY,
+	UserID INT FOREIGN KEY REFERENCES Users(UserID),
+	Rating TINYINT NOT NULL, --VALUE BETWEEN 1 AND 5
+	Comment NVARCHAR(256)
+);
+
+CREATE TABLE ReviewDetails (
+	ReviewDetailsID INT IDENTITY(1,1) PRIMARY KEY,
+	ReviewType TINYINT --Song(1), Album(2), Artist(3), Playlist(4)
+);
