@@ -1,0 +1,80 @@
+--------------------------
+1.How many artists were involved in thesong ‘Timber’? 
+--------------------------
+CODE:
+
+SELECT COUNT(artistID) FROM SongDetails
+INNER JOIN (
+	SELECT SongID FROM Songs WHERE SongName = 'Timber'
+) T
+ON SongDetails.SongID = T.SongID;
+
+RESULT: 2
+--------------------------
+2. 
+--------------------------
+CODE:
+
+SELECT COUNT(reviewID) FROM Reviews
+INNER JOIN (
+	SELECT UserID FROM Users WHERE FirstName = 'Pooja' and LastName = 'Sankar'
+) T
+ON Reviews.UserID = T.UserID;
+
+RESULT: 6
+--------------------------
+3.
+--------------------------
+CODE:
+
+SELECT AlbumName FROM Albums
+INNER JOIN (
+	SELECT AlbumID FROM AlbumDetails
+	INNER JOIN (
+		SELECT ArtistID FROM Artists WHERE ArtistName = 'Pink Floyd'
+	) T
+	ON AlbumDetails.ArtistID = T.ArtistID
+) T2
+ON Albums.AlbumID = T2.AlbumID
+ORDER BY AlbumName ASC;
+
+RESULT: 
+-THE DARK SIDE OF THE MOON
+-THE WALL
+-WISH YOU WERE HERE
+
+--------------------------
+4.
+--------------------------
+CODE:
+
+SELECT GenreName FROM Genres
+INNER JOIN (
+	SELECT GenreID from SongGenres
+	INNER JOIN (
+		SELECT SongID from Songs WHERE SongName = 'Timber'
+	) T
+	ON SongGenres.SongID = T.SongID
+) T2
+ON Genres.GenreID = T2.GenreID;
+
+RESULT: POP
+--------------------------
+5.
+--------------------------
+CODE:
+
+SELECT ArtistName FROM Artists
+INNER JOIN (
+	SELECT ArtistID FROM SongDetails
+	INNER JOIN (
+		SELECT RoleID FROM Roles WHERE RoleName = 'with'
+	) T
+	ON SongDetails.ArtistRoleID = T.RoleID
+) T2
+ON Artists.ArtistID = T2.ArtistID;
+
+RESULT:
+-Ke$ha
+-Grace Potter
+
