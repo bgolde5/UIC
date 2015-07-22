@@ -1,0 +1,19 @@
+-=CTA-L-Ridership-Daily=-
+
+Rides {
+  *StationID,
+  *Date,
+  Rides
+}
+
+DateDetails {
+  *Date,
+  DayTypeID
+}
+
+DayTypeDetails {
+  DayTypeID,
+  DayType (W,A,U)
+}
+
+-=CTA-L-Stops=-
