@@ -1,7 +1,12 @@
--=CTA-L-Ridership-Daily=-
+----------=CTA-L-Ridership-Daily=----------
+
+DailyStations {
+  *DailyStationID,
+  StationName
+}
 
 Rides {
-  *StationID,
+  *DailyStationID,
   *Date,
   Rides
 }
@@ -12,8 +17,45 @@ DateDetails {
 }
 
 DayTypeDetails {
-  DayTypeID,
+  *DayTypeID,
   DayType (W,A,U)
 }
 
--=CTA-L-Stops=-
+----------------------------------------
+
+-------------=CTA-L-Stops=--------------
+
+LineStops {
+  *StopID,
+  *LineID
+}
+
+Stops {
+  *StopID,
+  Direction,
+  StopName
+}
+
+Lines {
+  *LineID,
+  LineName
+}
+
+StationStops {
+  *StationID,
+  *StopID
+}
+
+Stations {
+  *StationID,
+  StationName
+}
+
+DescriptiveStations {
+  *DescriptiveStationName
+  StationID,
+  MapID,
+  ADA
+}
+
+----------------------------------------
