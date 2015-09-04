@@ -1,29 +1,15 @@
-----------=CTA-L-Ridership-Daily=----------
+CREATE TABLE Rides (
+  StationID INT NOT NULL,
+  RideDate DATE,
+  DayTypeID INT FOREIGN KEY REFERENCES DayTypes,
+  Rides INT,
+  PRIMARY KEY(SationID, RideDate)
+);
 
-DailyStations {
-  *DailyStationID,
-  StationName
-}
-
-Rides {
-  *DailyStationID,
-  *Date,
-  Rides
-}
-
-DateDetails {
-  *Date,
-  DayTypeID
-}
-
-DayTypeDetails {
-  *DayTypeID,
-  DayType (W,A,U)
-}
-
-----------------------------------------
-
--------------=CTA-L-Stops=--------------
+CREATE TABLE DayTypes (
+  DayTypeID INT IDENTITY(1,1) PRIMARY KEY,
+  DayType CHARACTER(1)
+);
 
 LineStops {
   *StopID,
@@ -33,7 +19,9 @@ LineStops {
 Stops {
   *StopID,
   Direction,
-  StopName
+  StopName,
+  ADA,
+  LineID
 }
 
 Lines {
@@ -46,16 +34,12 @@ StationStops {
   *StopID
 }
 
-Stations {
-  *StationID,
-  StationName
-}
+CREATE TABLE Stations (
+  StationID INT INDENTITY(1,1) PRIMARY KEY,
+  StationName NVARCHAR(128) NOT NULL
+);
 
 DescriptiveStations {
-  *DescriptiveStationName
-  StationID,
-  MapID,
-  ADA
+  *DescriptiveStationName,
+  StationID
 }
-
-----------------------------------------
