@@ -1,0 +1,196 @@
+--------Constructor initialization--------
+Enemy 1: 
+The enemy has the following attributes
+Strength: 100
+Vertical Level: 2
+Active: true
+Player Hit Amount: 15
+
+
+Enemy 2: 
+The enemy has the following attributes
+Strength: 100
+Vertical Level: 4
+Active: true
+Player Hit Amount: 10
+
+
+Enemy 3: 
+The enemy has the following attributes
+Strength: 100
+Vertical Level: 5
+Active: true
+Player Hit Amount: 20
+
+
+--------Get Strength--------
+Enemy 1: 
+100
+
+Enemy 2: 
+100
+
+Enemy 3: 
+100
+
+--------Render inactive--------
+Enemy 1: 
+The enemy has the following attributes
+Strength: 100
+Vertical Level: 2
+Active: false
+Player Hit Amount: 15
+
+
+Enemy 2: 
+The enemy has the following attributes
+Strength: 100
+Vertical Level: 4
+Active: false
+Player Hit Amount: 10
+
+
+Enemy 3: 
+The enemy has the following attributes
+Strength: 100
+Vertical Level: 5
+Active: false
+Player Hit Amount: 20
+
+
+--------Render active--------
+Enemy 1: 
+The enemy has the following attributes
+Strength: 100
+Vertical Level: 2
+Active: true
+Player Hit Amount: 15
+
+
+Enemy 2: 
+The enemy has the following attributes
+Strength: 100
+Vertical Level: 4
+Active: true
+Player Hit Amount: 10
+
+
+Enemy 3: 
+The enemy has the following attributes
+Strength: 100
+Vertical Level: 5
+Active: true
+Player Hit Amount: 20
+
+
+--------Hit enemy one--------
+Enemy 1: 
+The enemy has the following attributes
+Strength: 85
+Vertical Level: 2
+Active: true
+Player Hit Amount: 15
+
+
+--------Hit enemy two--------
+Enemy 2: 
+The enemy has the following attributes
+Strength: 90
+Vertical Level: 4
+Active: true
+Player Hit Amount: 10
+
+
+--------Hit enemy three--------
+Enemy 3: 
+The enemy has the following attributes
+Strength: 80
+Vertical Level: 5
+Active: true
+Player Hit Amount: 20
+
+
+--------Hit--------
+Enemy 1: 
+The enemy has the following attributes
+Strength: 70
+Vertical Level: 2
+Active: true
+Player Hit Amount: 15
+
+
+--------Hit--------
+Enemy 1: 
+The enemy has the following attributes
+Strength: 55
+Vertical Level: 2
+Active: true
+Player Hit Amount: 15
+
+
+--------Hit--------
+Enemy 1: 
+The enemy has the following attributes
+Strength: 40
+Vertical Level: 2
+Active: true
+Player Hit Amount: 15
+
+
+--------Hit--------
+Enemy 1: 
+The enemy has the following attributes
+Strength: 25
+Vertical Level: 2
+Active: true
+Player Hit Amount: 15
+
+
+--------Hit--------
+Enemy 1: 
+The enemy has the following attributes
+Strength: 10
+Vertical Level: 2
+Active: true
+Player Hit Amount: 15
+
+
+--------Hit--------
+Enemy 1: 
+The enemy has the following attributes
+Strength: 0
+Vertical Level: 2
+Active: true
+Player Hit Amount: 15
+
+
+-------getEnemyDanger of Enemy 1 at 3-------
+The enemy has the following attributes
+Strength: 0
+Vertical Level: 2
+Active: true
+Player Hit Amount: 15
+
+0
+-------getEnemyDanger of Enemy 2 at 3-------
+The enemy has the following attributes
+Strength: 90
+Vertical Level: 4
+Active: true
+Player Hit Amount: 10
+
+1
+-------getEnemyDanger of Enemy 3 at 3-------
+The enemy has the following attributes
+Strength: 80
+Vertical Level: 5
+Active: true
+Player Hit Amount: 20
+
+2
+-------compareStrength of 1 and 2-------
+false
+-------compareStrength of 2 and 3-------
+true
+-------compareStrength of 3 and 1-------
+true
