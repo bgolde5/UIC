@@ -13,12 +13,15 @@
 #include <sys/uio.h>
 #include <unistd.h>
 #include <dirent.h>
+#include <signal.h>
 
 #define BACKLOG (10)
 
 void serve_request(int);
 
 enum status_message {STATUS_200=200, STATUS_404=404, STATUS_501=501};
+
+char ROOT[128]; // root directory in server
 
 char* html = "HTTP/1.1 200 OK\r\n"
 "Content-type: text/html; charset=UTF-8\r\n\r\n";
@@ -41,6 +44,11 @@ char * index_hdr = "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 3.2 Final//EN\"><ht
 char * index_body = "<li><a href=\"%s\">%s</a>";
 
 char * index_ftr = "</ul><hr></body></html>";
+
+void sigchld_handler(){
+  while(waitpid(-1, 0, WNOHANG) > 0);
+  return;
+}
 
 /* char* parseRequest(char* request)
  * Args: HTTP request of the form "GET /path/to/resource HTTP/1.X" 
@@ -183,6 +191,7 @@ void send_501(int client_fd){
 }
 
 void send_404(int client_fd, char* filename){
+
   char buffer[4096];
   memset(buffer, 0, 4096);
 
@@ -272,6 +281,7 @@ void serve_request(int client_fd){
   char path[4096];
   char filename[4096];
   char *requested_file;
+  char *root_requested_file;
   char *method = (char*)malloc(sizeof(char)*100);
   char uri[100], version[100];
 
@@ -301,9 +311,19 @@ void serve_request(int client_fd){
   // Continue to read file
   requested_file = parseRequest(client_buf);
 
+  // ingnore slash
+  requested_file = &requested_file[1];
+
+  // add ROOT directory to requested file
+  root_requested_file = (char*)malloc(sizeof(char)*(strlen(requested_file)+strlen(ROOT)));
+  sprintf(root_requested_file, "%s%s", ROOT, requested_file);
+  requested_file = &root_requested_file[0];
+
   // take requested_file, add a . to beginning, open that file
   path[0] = '.';
-  strncpy(&path[1],requested_file,4095);
+  path[1] = '/';
+  strncpy(&path[2],requested_file,4094);
+
 
   // Check that the requested path exists I.E. localhost:port/WHOOPS.html
   if((read_fd = open(path,0,0)) <= 0){ 
@@ -357,6 +377,7 @@ int main(int argc, char** argv) {
 
   /* Read the port number from the first command line argument. */
   int port = atoi(argv[1]);
+  strncpy(&ROOT[0], argv[2], strlen(argv[2]));
 
   /* Create a socket to which clients will connect. */
   int server_sock = socket(AF_INET6, SOCK_STREAM, 0);
@@ -418,6 +439,10 @@ int main(int argc, char** argv) {
     exit(1);
   }
 
+  // register signal handler
+  signal(SIGCHLD, sigchld_handler);
+
+
   while(1) {
     /* Declare a socket for the client connection. */
     int sock;
@@ -441,12 +466,19 @@ int main(int argc, char** argv) {
       exit(1);
     }
 
+    if (fork() == 0){
+      close(server_sock);
+      serve_request(sock);
+      close(sock);
+      exit(0);
+    }
+
     /* At this point, you have a connected socket (named sock) that you can
      * use to send() and recv(). */
 
     /* ALWAYS check the return value of send().  Also, don't hardcode
      * values.  This is just an example.  Do as I say, not as I do, etc. */
-    serve_request(sock);
+    //serve_request(sock);
 
     /* Tell the OS to clean up the resources associated with that client
      * connection, now that we're done with it. */

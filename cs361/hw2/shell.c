@@ -224,7 +224,7 @@ void exec_program(char** argv){
     case 0:
       // in the child process
       printf("Child PID: [%i]\n", getpid());
-      execvp(argv[0], &argv[1]);
+      execvp(argv[0], argv);
       invalid_cmd(argv[0]);
       exit(EXIT_FAILURE);
       break;
@@ -320,7 +320,6 @@ void do_file_io(char** argv){
   char **cmd; // cmd prior to file io operator
   char* fmode = NULL; // file mode, i.e. "r", "w", "a"
   char *file; // filename following io operator
-//  FILE *cmd_stream; // capture command stream instead of outputting to terminal
 
   fmode = get_fmode(argv); // get the file mode
 
@@ -369,6 +368,7 @@ void cmd_from_file(char **argv, char *file){
   int status = 0; // used to identify a programs exit status code
   char cmd_buffer[1000]; // buffer to hold contents of a given file
   int fd_in;
+  char **cmd = get_cmd(argv);
 
   switch(pid = fork()){
     case -1:
@@ -381,8 +381,9 @@ void cmd_from_file(char **argv, char *file){
       dup2(fd_in, 0);
       close(fd_in);
       printf("Child PID: [%i]\n", getpid());
-      execvp(argv[0], &argv[1]);
-      invalid_cmd(cmd_buffer);
+      execvp(argv[0], cmd);
+      invalid_cmd(argv[0]);
+      free(cmd);
       exit(EXIT_FAILURE);
       break;
     default:
@@ -390,6 +391,8 @@ void cmd_from_file(char **argv, char *file){
       wait(&status); //get exit value and wait for child program to finish
       break;
   }
+
+  free(cmd);
 } // end cmd_from_file
 
 /*
@@ -399,7 +402,8 @@ void cmd_from_file(char **argv, char *file){
 void append_to_file(char** argv, char *file){
   int pid = -1; // used to identify the current process
   int status = 0; // used to identify a programs exit status code
-  int fp = open(file, O_WRONLY | O_APPEND); // open file to write, if file doesn't exist, create it
+  int fp = open(file, O_WRONLY | O_CREAT | O_APPEND, S_IRUSR | S_IWUSR); // open file to write, if file doesn't exist, create it
+  char **cmd = get_cmd(argv);
 
   switch(pid = fork()){
     case -1:
@@ -411,8 +415,10 @@ void append_to_file(char** argv, char *file){
       dup2(fp, 1); // make stdout go to file 
       close(fp);
       printf("Child PID: [%i]\n", getpid());
-      execv(argv[0], &argv[1]);
+      execvp(argv[0], cmd);
+      debug("test");
       invalid_cmd(argv[0]);
+      free(cmd);
       exit(EXIT_FAILURE);
       break;
     default:
@@ -420,6 +426,8 @@ void append_to_file(char** argv, char *file){
       wait(&status); //get exit value and wait for child program to finish
       break;
   }
+
+  free(cmd);
 } // end append_to_file
 
 /*
@@ -430,6 +438,7 @@ void write_to_file(char** argv, char *file){
   int pid = -1; // used to identify the current process
   int status = 0; // used to identify a programs exit status code
   int fp = open(file, O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR); // open file to write, if file doesn't exist, create it, set proper permissions if file doesn't exist already
+  char **cmd = get_cmd(argv);
 
   switch(pid = fork()){
     case -1:
@@ -440,8 +449,9 @@ void write_to_file(char** argv, char *file){
       // in the child process
       dup2(fp, 1); // make stdout go to file 
       printf("Child PID: [%i]\n", getpid());
-      execvp(argv[0], &argv[1]);
+      execvp(argv[0], cmd);
       invalid_cmd(argv[0]);
+      free(cmd);
       exit(EXIT_FAILURE);
       break;
     default:
@@ -449,6 +459,7 @@ void write_to_file(char** argv, char *file){
       wait(&status); //get exit value and wait for child program to finish
       break;
   }
+  free(cmd);
 } // end write_to_file
 
 // prints an invalid command to the terminal

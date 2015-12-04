@@ -1,0 +1,48 @@
+----------------------
+MD5 FOR DOWNLOADED FILES
+----------------------
+----------------------
+MD5 FOR LOCAL FILES
+----------------------
+0452b7a49c16796188e27da1f1e4b0b1  favicon.ico
+6a5b12e3e227e4ca8afb2de89a416f2e  google.gif
+371122b9a701a02d966a823e8661dc3b  index.html
+a91dc9d37f50f9e6c77a9c95aad89a13  monorail.jpg
+3252a3e8a419548ece0703e2a94425dd  pic.html
+7256c5d912da130063ebddbd46ee8e9c  skype.png
+----------------------
+MD5 FOR DOWNLOADED FILES
+----------------------
+0452b7a49c16796188e27da1f1e4b0b1  favicon.ico
+6a5b12e3e227e4ca8afb2de89a416f2e  google.gif
+371122b9a701a02d966a823e8661dc3b  index.html
+a91dc9d37f50f9e6c77a9c95aad89a13  monorail.jpg
+3252a3e8a419548ece0703e2a94425dd  pic.html
+7256c5d912da130063ebddbd46ee8e9c  skype.png
+----------------------
+MD5 FOR LOCAL FILES
+----------------------
+0452b7a49c16796188e27da1f1e4b0b1  favicon.ico
+6a5b12e3e227e4ca8afb2de89a416f2e  google.gif
+371122b9a701a02d966a823e8661dc3b  index.html
+a91dc9d37f50f9e6c77a9c95aad89a13  monorail.jpg
+3252a3e8a419548ece0703e2a94425dd  pic.html
+7256c5d912da130063ebddbd46ee8e9c  skype.png
+----------------------
+MD5 FOR DOWNLOADED FILES
+----------------------
+0452b7a49c16796188e27da1f1e4b0b1  favicon.ico
+6a5b12e3e227e4ca8afb2de89a416f2e  google.gif
+371122b9a701a02d966a823e8661dc3b  index.html
+a91dc9d37f50f9e6c77a9c95aad89a13  monorail.jpg
+3252a3e8a419548ece0703e2a94425dd  pic.html
+7256c5d912da130063ebddbd46ee8e9c  skype.png
+----------------------
+MD5 FOR LOCAL FILES
+----------------------
+0452b7a49c16796188e27da1f1e4b0b1  favicon.ico
+6a5b12e3e227e4ca8afb2de89a416f2e  google.gif
+371122b9a701a02d966a823e8661dc3b  index.html
+a91dc9d37f50f9e6c77a9c95aad89a13  monorail.jpg
+3252a3e8a419548ece0703e2a94425dd  pic.html
+7256c5d912da130063ebddbd46ee8e9c  skype.png

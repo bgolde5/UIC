@@ -1,0 +1,28 @@
+#should pass
+/favicon.ico
+/google.gif
+/index.html
+/monorail.jpg
+/pic.html
+/skype.png
+/
+
+#should fail
+/whoops.ico
+/googl.gif
+/indx.html
+/monoril.jpg
+/pc.html
+/skyp.png
+#should pass
+/test/
+/test/dir/
+/test/dir/endtoend.pdf
+/test/dir/index.html
+/test/dir/testpage.html
+#should fail
+/tests/
+/test/dirs/
+/test/dir/endtond.pdf
+/test/dir/indx.html
+/test/dir/testpae.html
