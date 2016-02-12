@@ -1,0 +1,47 @@
+
+The Problem:
+-------------------------------------
+We want to assign multiple areas to one course. Each course only corresponds to one type and one area, meaning that each course can only be assigned one area. 
+
+The Solution:
+-------------------------------------
+To fix this issue, we need to be able to assign one course to many areas. To do this, I have chosen to remove area from Dim_Type and create two new tables called area and areas. The "Area" table consists of all the possible areas that can be assigned to a course while the "Areas" table consists off all the areas that are assigned to one course. In this example, the link between the "Dim_Type" table and the "Areas" table is the type_id. Also note that I use a composite key for the "Areas" table consisting of the type_id and the area_id. See the example below:
+
+-------------------------------------
+Current Layout:
+-------------------------------------
+
+Fact_Course_Evaluation
+----------------------
+professor_id int
+term_id int,
+student_id int,
+type_id int,
+class_score int,
+efficiency_score int,
+content_score int
+
+Dim_Type
+id |  type | area
+-----------------
+01 | course | ai
+
+-------------------------------------
+New Layout:
+-------------------------------------
+
+Dim_Type
+id | type
+------------
+01 | course
+
+Areas
+-----------------
+type_id | area_id
+
+Area
+id | area_name
+--------------
+01 | systems
+02 | ai
+...
