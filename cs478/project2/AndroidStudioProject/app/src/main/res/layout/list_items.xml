@@ -5,13 +5,15 @@
     android:paddingTop="10dp"
     android:paddingBottom="10dp"
     android:paddingRight="10dp"
-    android:paddingLeft="10dp">
+    android:paddingLeft="10dp"
+    android:contextClickable="false"
+    android:clickable="false">
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
-        android:layout_toLeftOf="@id/songImage"
+        android:layout_toLeftOf="@+id/songImage"
         android:paddingRight="10dp"
         android:orientation="vertical">
 
@@ -19,19 +21,20 @@
             android:id="@+id/songText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Mannish Boy"
-            android:textIsSelectable="true"
-            android:textSize="40dp"
+            android:text="Song Name"
+            android:textIsSelectable="false"
+            android:textSize="20dp"
             android:layout_gravity="right"
-            android:textStyle="normal" />
+            android:textStyle="normal"
+            android:gravity="right" />
 
         <TextView
             android:id="@+id/artistText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Muddy Waters"
+            android:text="Artist Name"
             android:layout_gravity="right"
-            android:textSize="20dp"
+            android:textSize="15dp"
             android:textStyle="italic" />
     </LinearLayout>
 
@@ -42,6 +45,6 @@
         android:scaleType="fitStart"
         android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
-        android:src="@drawable/mannish_boy"/>
+        android:src="@drawable/placeholder"/>
 
 </RelativeLayout>
