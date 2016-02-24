@@ -1,22 +1,11 @@
-
-# coding: utf-8
-
-# In[ ]:
-
-
-
-
-# In[181]:
-
 import re
 from collections import defaultdict
 import csv
 import urllib.request
 import xml.etree.ElementTree as ET
 import enchant
-import re
 import string
-import re
+import sys
 
 wordnet_dict = {}
 DictService = False # enabling this significantly slows this program but will result in more accurate spell checking
@@ -33,7 +22,6 @@ class DataCleaner(object):
             for name in names:
                 classes = data[name]
                 classes = '|'.join(classes)
-                print(classes)
                 clean.write("{0}  - {1}\n".format(name, classes))
 
     def jaccard(self, list1, list2):
@@ -428,7 +416,7 @@ class DataCleaner(object):
     # def append_name_to_each_cclass(name, classes):
 
     def import_csv(self, filename):
-        with open('class.txt') as csvfile:
+        with open(filename) as csvfile:
             data = defaultdict(list)
             classes_list = []
             for row in csvfile:
@@ -512,3 +500,8 @@ class DataCleaner(object):
         data_clean = data_capitalized_correctly
         return data_clean
 
+if __name__ == "__main__":
+    filename = sys.argv[1]
+    cleaner = DataCleaner()
+    data = cleaner.get_clean_data(filename)
+    cleaner.save(data, filename)

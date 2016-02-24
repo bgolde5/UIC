@@ -8,7 +8,6 @@ def q1(filename):
     classes_list = DataCleaner().build_classes_list(data)
     classes_mapping = DataCleaner().entity_resolution(classes_list)
     print("Query 1 results: {0}".format(len(classes_mapping)))
-    DataCleaner().save(data, 'clean.txt')
 
 # Query 2
 def q2(filename):
@@ -28,7 +27,7 @@ def q3(filename):
     print(jaccard_solution['prof1'] + ", " + jaccard_solution['prof2'])
 
 if __name__ == '__main__':
-    filename = "".join(sys.argv)
+    filename = sys.argv[1]
     q1(filename)
     q2(filename)
     q3(filename)
