@@ -1,0 +1,48 @@
+<resources>
+    <string name="app_name">project3 part 2</string>
+
+    <string-array name="chicago_attractions">
+        <item>Art Institute</item>
+        <item>Lagunitas</item>
+        <item>The Green Mill</item>
+        <item>The Signiture Lounge</item>
+        <item>Shedd Aquarium</item>
+        <item>Field Museum</item>
+        <item>Museum of Science and Industry</item>
+        <item>Adler Planetarium</item>
+        <item>Chicago Botanic Gardens</item>
+        <item>Millennium Park</item>
+        <item>North Ave Beach</item>
+        <item>Lincoln Park Zoo</item>
+    </string-array>
+
+    <string-array name="chicago_attraction_urls">
+        <item>http://www.artic.edu/</item>
+        <item>https://lagunitas.com/taprooms/chicago</item>
+        <item>http://greenmilljazz.com/</item>
+        <item>https://www.signatureroom.com/lounge/</item>
+        <item>http://www.sheddaquarium.org/</item>
+        <item>https://www.fieldmuseum.org/</item>
+        <item>http://www.msichicago.org/</item>
+        <item>http://www.adlerplanetarium.org/</item>
+        <item>http://www.chicagobotanic.org/</item>
+        <item>http://www.choosechicago.com/things-to-do/tours-and-attractions/millennium-park/</item>
+        <item>http://www.chicagoparkdistrict.com/parks/north-avenue-beach/</item>
+        <item>http://www.lpzoo.org/</item>
+    </string-array>
+
+    <string-array name="indy_attractions">
+        <item>Motor Speedway</item>
+        <item>Soldier\'s and Sailor\'s Monument</item>
+        <item>Indiana Central Canal</item>
+        <item>Scottish Ride Cathedral</item>
+    </string-array>
+
+    <string-array name="indy_attraction_urls" formatted="false">
+        <item>http://www.indianapolismotorspeedway.com/</item>
+        <item>https://en.wikipedia.org/wiki/Soldiers%27_and_Sailors%27_Monument_(Indianapolis)</item>
+        <item>https://en.wikipedia.org/wiki/Indiana_Central_Canal</item>
+        <item>https://en.wikipedia.org/wiki/Scottish_Rite_Cathedral_(Indianapolis)</item>
+    </string-array>
+
+</resources>
