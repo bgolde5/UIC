@@ -7,7 +7,7 @@
         android:minSdkVersion="19"
         android:maxSdkVersion="23" />
 
-    <permission android:name="course.examples.Services.AudioService.PLAYER"/>
+    <permission android:name="me.bradleygolden.Services.AudioService.PLAYER" />
 
     <application
         android:allowBackup="false"
