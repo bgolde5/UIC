@@ -1,0 +1,16 @@
+SEARCH API:
+For this section, I had to add the "count=100" parameter to the uri request in order to force twitter to return 100 search results.
+
+USER API:
+I also initially had issues parsing the results from the twitter response. In order to fix this I had to play around with the encoding
+of the url response object so I could get a clean enough response for the json library to parse.
+
+COMPUTE TERM FREQUENCY:
+For this section, I simply read in each tweet and broke the tweet into a list of words using the standard split method. I then removed
+any apostrophes because I notices the stopwords file did not have apostrophes. After getting each tweet into a list of words, I 
+compared each word to ensure it wasn't a stopword. After I verified it wasn't a stopword, I counted that word using a dictionary where the 
+key is the word and the value is the number of occurences of that word. Lastly I counted all the words and divided each individual 
+word count in the dictionary by the total occurences of all words.
+
+TERM FREQUENCY DISCUSSION:
+From the results of the top most frequent words on Twitter, it appears that the most common word used is rt standing for “retweet” by a factor of more than 100 of the next most recently used word. It also appears that on the day of the sample I collected it was international women’s day which can be reflected from the term in the results #internationalwomensday.

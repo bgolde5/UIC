@@ -1,0 +1,30 @@
+SEARCH API:
+For this section, I had to add the "count=100" parameter to the uri request in order to force twitter to return 100 search results.
+
+USER API:
+I also initially had issues parsing the results from the twitter response. In order to fix this I had to play around with the encoding
+of the url response object so I could get a clean enough response for the json library to parse.
+
+COMPUTE TERM FREQUENCY:
+For this section, I simply read in each tweet and broke the tweet into a list of words using the standard split method. I then removed
+any apostrophes because I notices the stopwords file did not have apostrophes. After getting each tweet into a list of words, I 
+compared each word to ensure it wasn't a stopword. After I verified it wasn't a stopword, I counted that word using a dictionary where the 
+key is the word and the value is the number of occurences of that word. Lastly I counted all the words and divided each individual 
+word count in the dictionary by the total occurences of all words.
+
+DETERMINE SENTIMENT OF EACH TWEET:
+In this section, I cross referenced each word in a tweet with each word in the sentiment words file. If the word was a sentiment word,
+it was accounted for and incremented to the total sentiment score of that tweet. I then saved each score for each tweet in a dictionary
+that I could later reference easily.
+
+HAPPIEST BREAKING BAD ACTOR:
+The methods used in this approach are very similar to the previous minus one big difference. Some lines in the CSV had line breaks
+which required special parsing to ensure the total sentiment score was properly added.
+
+HAPPIEST STATE:
+The methods used in this approach were very similar to the previous 2 minus a few differences.
+
+To determine the state of a user:
+	1. I ignored the coordinates object because it was too difficult to determine if a given lat and long was in a state or not
+	2. I used the 'user' object to determine the state of the user. This required creating a mapping of abbreviations to full state names
+	3. I used the 'place' object to determine the place where the tweet is associated. This again required the same mapping in step 2

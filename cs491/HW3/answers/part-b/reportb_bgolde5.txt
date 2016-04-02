@@ -1,0 +1,53 @@
+------------------------
+Tweet Sentiment Analysis
+------------------------
+13.0: @Harry_Styles #MadeInTheAM is amazing and i love the #1DHistoryVideo. thank you for everything H. please follow me? All the love .x102,390
+12.0: @Harry_Styles thank you for making me happy &amp; for being you, i truly love you. smile everyday &amp; enjoy the break!! mind following me?♡—82,268
+11.0: RT @DeputyheadCG: Very excited and proud @west_eyfs children with their rewards for brilliant behaviour 😀 https://t.co/xTkc1Xu3Hd
+11.0: RT @bethhh_any: Women are so awesome I'm basking in women love today💕I'm gonna share the love with a nudey pic 👯 https://t.co/gwE3WTHKHL
+11.0: @StevieWise @KajalOdedra1 @UKChange I love it Stevie!! You look wonderful &amp; happy!! I'm just pulling a funny face!!!
+10.0: @JamesMc62389231 @KCChiefsWriter hope he has fun lmfao
+10.0: happy birthday Chloe❤️ love you lots! Thankfullll for all the fun memories we'll always have and for ones to come 🎈🎉 https://t.co/lT40ItcimH
+10.0: @choleisfake 's perfect timing of jokes, amazing writing skills, and beautiful art make me lowkey jealous but highkey proud
+10.0: It's #InternationalWomensDay! Get empowered by these 10 inspiring quotes from fierce, brilliant and beautiful women: https://t.co/Pd5u0193Cu
+10.0: RT @mikeybarone: this is so cool happy birthday @pressplayontour glad i get to celebrate in boston with you guys(: https://t.co/AU7llrRMJu
+-16.0: I'm not suppose to get mad or stress out about shit because of my heart but fuck that's hard when you get hit some bullshit
+-14.0: RT @tonyswaltz: she was also a fucking teacher and even after her death she STILL teaches the world so fuck you and your white shit
+-14.0: @AugustAlsina idgf if u dog a bitch u dnt let a bitch waste my nuts idgf u are wasteing nut
+-13.0: bitches wanna be trap queens but selling weak ass drugs lmfaooo stop it boo😂
+-13.0: RT @darrperalta: don't be that bitch he fucking with when I'm not fucking with him
+-12.0: RT @yung_gleesh: Lost people be so mad dat Dey lost but Dnt een kno Dey lost to even understand y Dey mad n da first place
+-11.0: @Holla4ThisDolla complete??? 😂😂 nah bitch it's just I have self respect and my pussy hold weight fuck is you talking bout 😂😂😂 you pathetic
+-11.0: RT @CactusJackRages: ACTION: I kill a worthless, subhuman nigger. REACTION: His nigger homies come for me, and I kill all of them too. YOU'…
+-10.0: RT @delafro_: We go through this every time. Kim K gets naked, y'all slut shame her and claim she's a bad mother, rinse, repeat.
+-10.0: It be weird ass shit
+
+-----------------------------------
+Happiest Breaking Bad Actor Results
+-----------------------------------
+1.7837837837837838: mrbobodenkirk
+1.2173913043478262: quiethandfilms
+1.09375: aaronpaul_8
+0.9375: deanjnorris
+0.9166666666666666: BryanCranston
+0.8723404255319149: Krystenritter
+0.6875: RjMitte
+0.6666666666666666: betsy_brandt
+0.6170212765957447: CharlesEbaker
+0.5102040816326531: DanielMoncada80
+0.3877551020408163: LuisMoncada77
+-0.2702702702702703: mattjonesisdead
+
+----------------------
+Happiest State Results
+----------------------
+3.0: Vermont
+2.6666666666666665: Kansas
+2.0: Delaware
+1.6666666666666667: Tennessee
+1.3333333333333333: Maine
+-0.75: Hawaii
+-0.6666666666666666: Iowa
+-0.55: Michigan
+-0.5: Montana
+-0.25: Mississippi

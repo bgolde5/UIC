@@ -1,0 +1,26 @@
+DETERMINE SENTIMENT OF EACH TWEET:
+In this section, I cross referenced each word in a tweet with each word in the sentiment words file. If the word was a sentiment word,
+it was accounted for and incremented to the total sentiment score of that tweet. I then saved each score for each tweet in a dictionary
+that I could later reference easily.
+
+DETERMINE SENTIMENT OF EACH TWEET DISCUSSION:
+From the results, it’s clear to see that the top tweet with a score of 13.0, is in fact happy by merely reading the tweet. It’s also very clear to see that the most unhappy tweet is very unhappy. Overall, it looks like my algorithm does, to some level, score the sentiment each tweet well.
+
+
+HAPPIEST BREAKING BAD ACTOR:
+The methods used in this approach are very similar to the previous minus one big difference. Some lines in the CSV had line breaks
+which required special parsing to ensure the total sentiment score was properly added.
+
+HAPPIEST BREAKING BAD DISCUSSION:
+From the results of the Breaking Bad Actor’s tweets, it appears that the majority of the actors are fairly happy. This makes sense to me because as an actor, they must uphold a public image. My judgement is that upholding a negative image may harm their ability to market themselves.
+
+HAPPIEST STATE:
+The methods used in this approach were very similar to the previous 2 minus a few differences.
+
+To determine the state of a user:
+	1. I ignored the coordinates object because it was too difficult to determine if a given lat and long was in a state or not
+	2. I used the 'user' object to determine the state of the user. This required creating a mapping of abbreviations to full state names
+	3. I used the 'place' object to determine the place where the tweet is associated. This again required the same mapping in step 2
+
+HAPPIEST STATE DISCUSSION:
+From the results, it’s most interesting to see that Hawaii is the most unhappy state rated. The rest of the results are fairly spread out and it’s difficult to see if their are any conclusions to be drawn without doing further analysis.
