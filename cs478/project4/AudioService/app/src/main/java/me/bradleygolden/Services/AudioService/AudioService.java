@@ -14,8 +14,6 @@ import me.bradleygolden.Services.AudioService.IAudioService;
  */
 public class AudioService extends Service {
 
-    protected static final String TAG = "AudioServiceServer";
-
     @Override
     public IBinder onBind(Intent intent) {
         return mBinder;
@@ -31,19 +29,16 @@ public class AudioService extends Service {
         @Override
         public String pauseClip(String clip) throws RemoteException {
             return "pauseClip";
-
         }
 
         @Override
         public String stopClip(String clip) throws RemoteException {
             return "stopClip";
-
         }
 
         @Override
         public String resumeClip(String clip) throws RemoteException {
             return "resumeClip";
-
         }
     };
 }
