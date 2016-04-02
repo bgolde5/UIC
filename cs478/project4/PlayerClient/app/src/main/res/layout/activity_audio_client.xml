@@ -16,12 +16,37 @@
         android:id="@+id/playClipBtn"
         android:layout_alignParentStart="true" />
 
-    <TextView
+    <EditText
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Waiting"
-        android:id="@+id/playClipTxt"
+        android:id="@+id/clipTxt"
         android:layout_below="@+id/playClipBtn"
         android:layout_alignParentStart="true"
-        android:layout_alignEnd="@+id/playClipBtn" />
+        android:layout_alignParentEnd="true"
+        android:text="Enter a clip name" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Pause Clip"
+        android:id="@+id/pauseClipBtn"
+        android:layout_below="@+id/clipTxt"
+        android:layout_alignParentStart="true" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Stop Clip"
+        android:id="@+id/stopClipBtn"
+        android:layout_below="@+id/pauseClipBtn"
+        android:layout_alignParentStart="true" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Resume Clip"
+        android:id="@+id/resumeClipBtn"
+        android:layout_below="@+id/stopClipBtn"
+        android:layout_alignParentStart="true" />
+
 </RelativeLayout>

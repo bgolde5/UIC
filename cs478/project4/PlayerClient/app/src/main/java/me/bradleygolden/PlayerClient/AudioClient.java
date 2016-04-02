@@ -5,19 +5,14 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.content.pm.ResolveInfo;
-import android.net.Uri;
-import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.RemoteException;
 import android.util.Log;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
-
-import com.google.android.gms.appindexing.Action;
-import com.google.android.gms.appindexing.AppIndex;
-import com.google.android.gms.common.api.GoogleApiClient;
 
 import me.bradleygolden.Services.AudioService.IAudioService;
 
@@ -33,10 +28,87 @@ public class AudioClient extends Activity {
 
         setContentView(R.layout.activity_audio_client);
 
+        final TextView clipName = (TextView)findViewById(R.id.clipTxt);
+        final Button playClipBtn = (Button)findViewById(R.id.playClipBtn);
+        final Button pauseClipBtn = (Button)findViewById(R.id.pauseClipBtn);
+        final Button stopClipBtn = (Button)findViewById(R.id.stopClipBtn);
+        final Button resumeClipBtn = (Button)findViewById(R.id.resumeClipBtn);
+
+        // Listener for playing a clip
+        playClipBtn.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                try {
+                    if (mIsBound) {
+                        mAudioService.playClip(clipName.getText().toString());
+                    } else {
+                        Log.e(TAG, "Bradley says the service was not bound and can't play!");
+                    }
+                } catch (RemoteException e){
+                    Log.e(TAG, e.toString());
+                }
+            }
+        });
+
+        // Listener for pausing a clip
+        pauseClipBtn.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+                    if (mIsBound) {
+                        mAudioService.pauseClip();
+                    } else {
+                        Log.e(TAG, "Bradley says the service is not bound and can't pause!");
+                    }
+                } catch (RemoteException e) {
+                    Log.e(TAG, e.toString());
+                }
+            }
+        });
+
+        // Listener for stopping a clip
+        stopClipBtn.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+                    if (mIsBound) {
+                        mAudioService.stopClip();
+                    } else {
+                        Log.e(TAG, "Bradley says the service is not bound and can't stop!");
+                    }
+                } catch (RemoteException e) {
+                    Log.e(TAG, e.toString());
+                }
+            }
+        });
+
+        // Listener for resuming a clip
+        resumeClipBtn.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+                    if (mIsBound) {
+                        mAudioService.resumeClip();
+                    } else {
+                        Log.e(TAG, "Bradley says the service is not bound and can't resume!");
+                    }
+                } catch (RemoteException e) {
+                    Log.e(TAG, e.toString());
+                }
+            }
+        });
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
         if(!mIsBound) {
-            Intent i = new Intent();
-            i.setClassName("me.bradleygolden.Services.AudioService", me.bradleygolden.Services.AudioService.IAudioService.class.getName());
-            Boolean b = bindService(i, mConnection, Context.BIND_AUTO_CREATE);
+            boolean b = false;
+            Intent i = new Intent(IAudioService.class.getName());
+            b = bindService(i, this.mConnection, Context.BIND_AUTO_CREATE);
 
             if (b) {
                 Log.e(TAG, "Bound service");
@@ -45,54 +117,28 @@ public class AudioClient extends Activity {
                 Log.e(TAG, "Service not bound");
             }
         }
-
-        final Button playClipBtn = (Button)findViewById(R.id.playClipBtn);
-
-        playClipBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                if (mIsBound) {
-                    TextView playClipTxt = (TextView) findViewById(R.id.playClipTxt);
-                    try {
-                        playClipTxt.setText(mAudioService.playClip("Test"));
-                    } catch (Exception e) {
-                        playClipTxt.setText(e.toString());
-                        Log.e(TAG, e.toString());
-                    }
-                }
-            }
-        });
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
-    }
+    protected void onPause() {
 
-    @Override
-    public void onStop() {
-        super.onStop();
-
-        // Unbind from the service
-        if (mIsBound) {
-//            unbindService(mConnection);
-            mIsBound = false;
+        if(mIsBound){
+            unbindService(this.mConnection);
         }
+
+        super.onPause();
     }
 
     private final ServiceConnection mConnection = new ServiceConnection() {
-        @Override
+
         public void onServiceConnected(ComponentName name, IBinder service) {
             mAudioService = IAudioService.Stub.asInterface(service);
             mIsBound = true;
         }
 
-        @Override
         public void onServiceDisconnected(ComponentName name) {
             mAudioService = null;
             mIsBound = false;
-
         }
     };
 }
