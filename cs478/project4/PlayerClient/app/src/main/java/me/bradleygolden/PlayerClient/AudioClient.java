@@ -1,5 +1,6 @@
 package me.bradleygolden.PlayerClient;
 
+import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -25,7 +26,7 @@ import java.util.List;
 
 import me.bradleygolden.Services.AudioService.IAudioService;
 
-public class AudioClient extends FragmentActivity {
+public class AudioClient extends Activity {
 
     protected static final String TAG = "AudioServiceUser";
 
@@ -51,9 +52,9 @@ public class AudioClient extends FragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_audio_client);
 
-        final SongListAdapter songListAdapter = new SongListAdapter(this, R.layout.list_item, songs);
-        ListView listView = (ListView)findViewById(R.id.listView);
-        listView.setAdapter(songListAdapter);
+//        final SongListAdapter songListAdapter = new SongListAdapter(this, R.layout.list_item, songs);
+//        ListView listView = (ListView)findViewById(R.id.listView);
+//        listView.setAdapter(songListAdapter);
 
         playBtn = (ImageButton)findViewById(R.id.playBtn);
         pauseBtn = (ImageButton)findViewById(R.id.pauseBtn);
@@ -62,30 +63,30 @@ public class AudioClient extends FragmentActivity {
         songNameInBar = (TextView)findViewById(R.id.songNameTxt_bar);
         artistNameInBar = (TextView)findViewById(R.id.artistNameTxt_bar);
 
-        // Set listener for selecting songs
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                selectedSong = songs.get(position);
-                songListAdapter.setSelectedIndex(position);
-
-                try
-                {
-                    mAudioService.playClip(selectedSong.getSongName());
-                    // Hide the play button, show the pause button
-                    // This simulates a new song beging selected and played
-                    playBtn.setVisibility(View.INVISIBLE);
-                    pauseBtn.setVisibility(View.VISIBLE);
-
-                    isStopped = false;
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-
-                updateSongBar();
-
-            }
-        });
+//        // Set listener for selecting songs
+//        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//            @Override
+//            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+//                selectedSong = songs.get(position);
+//                songListAdapter.setSelectedIndex(position);
+//
+//                try
+//                {
+//                    mAudioService.playClip(selectedSong.getSongName());
+//                    // Hide the play button, show the pause button
+//                    // This simulates a new song beging selected and played
+//                    playBtn.setVisibility(View.INVISIBLE);
+//                    pauseBtn.setVisibility(View.VISIBLE);
+//
+//                    isStopped = false;
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+//
+//                updateSongBar();
+//
+//            }
+//        });
 
         // Listener for playing a clip
         playBtn.setOnClickListener(new OnClickListener() {
@@ -145,8 +146,8 @@ public class AudioClient extends FragmentActivity {
                     selectedSong = songs.get(selectedSong.getSongNumber()+1);
                 }
 
-                // Update the selected song index in the gui
-                songListAdapter.setSelectedIndex(selectedSong.getSongNumber());
+//                // Update the selected song index in the gui
+//                songListAdapter.setSelectedIndex(selectedSong.getSongNumber());
 
                 try {
 //                    mAudioService.playClip(selectedSong.getSongName());
@@ -176,8 +177,8 @@ public class AudioClient extends FragmentActivity {
                         selectedSong = songs.get(selectedSong.getSongNumber()-1);
                     }
 
-                    // Update the selected song index in the gui
-                    songListAdapter.setSelectedIndex(selectedSong.getSongNumber());
+//                    // Update the selected song index in the gui
+//                    songListAdapter.setSelectedIndex(selectedSong.getSongNumber());
 
                     try {
 //                    mAudioService.playClip(selectedSong.getSongName());
@@ -234,15 +235,15 @@ public class AudioClient extends FragmentActivity {
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
+    protected void onStart() {
+        super.onStart();
 
         if(!mIsBound) {
             boolean b = false;
 
             // Bind to AudioService
             Intent i = new Intent(IAudioService.class.getName());
-            b = getApplicationContext().bindService(i, mConnection, Context.BIND_AUTO_CREATE);
+            b = bindService(i, mConnection, Context.BIND_AUTO_CREATE);
 
             if (b) {
                 Log.e(TAG, "Bound service");
@@ -251,16 +252,6 @@ public class AudioClient extends FragmentActivity {
                 Log.e(TAG, "Service not bound");
             }
         }
-    }
-
-    @Override
-    protected void onPause() {
-
-        if(mIsBound){
-            unbindService(this.mConnection);
-        }
-
-        super.onPause();
     }
 
     private final ServiceConnection mConnection = new ServiceConnection() {
@@ -289,8 +280,8 @@ public class AudioClient extends FragmentActivity {
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
+    protected void onStop() {
+        super.onStop();
 
         if(mIsBound) {
             unbindService(mConnection);
