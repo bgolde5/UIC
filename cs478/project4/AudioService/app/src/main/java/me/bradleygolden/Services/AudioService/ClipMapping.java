@@ -12,9 +12,9 @@ public final class ClipMapping {
 
     static {
         clipMap = new HashMap();
-        clipMap.put("Ocean Motion", R.raw.ocean_motion);
-        clipMap.put("Chanson", R.raw.chanson);
-        clipMap.put("Ave Maria", R.raw.ave_maria);
+        clipMap.put("1", R.raw.ave_maria);
+        clipMap.put("2", R.raw.chanson);
+        clipMap.put("3", R.raw.ave_maria);
     }
 
     public static int getResID(String clip) {

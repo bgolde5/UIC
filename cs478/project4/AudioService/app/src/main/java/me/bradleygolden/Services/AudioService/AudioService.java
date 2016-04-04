@@ -61,8 +61,8 @@ public class AudioService extends Service {
 
     @Override
     public void onDestroy() {
+        super.onDestroy();
         mediaPlayer.release();
         mediaPlayer = null;
-        super.onDestroy();
     }
 }
