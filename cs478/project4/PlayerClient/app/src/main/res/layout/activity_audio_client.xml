@@ -3,50 +3,27 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="me.bradleygolden.PlayerClient.AudioClient">
 
-    <Button
+    <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Play Clip"
-        android:id="@+id/playClipBtn"
-        android:layout_alignParentStart="true" />
+        android:orientation="vertical">
 
-    <EditText
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/clipTxt"
-        android:layout_below="@+id/playClipBtn"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentEnd="true"
-        android:text="Enter a clip name" />
+        <ListView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/listView"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentStart="true"
+            android:layout_above="@+id/audio_bar_fragment" />
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Pause Clip"
-        android:id="@+id/pauseClipBtn"
-        android:layout_below="@+id/clipTxt"
-        android:layout_alignParentStart="true" />
+        <fragment android:name="me.bradleygolden.PlayerClient.AudioBar"
+            android:id="@+id/audio_bar_fragment"
+            android:layout_width="fill_parent"
+            android:layout_height="50dp"
+            android:layout_alignParentBottom = "true" />
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Stop Clip"
-        android:id="@+id/stopClipBtn"
-        android:layout_below="@+id/pauseClipBtn"
-        android:layout_alignParentStart="true" />
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Resume Clip"
-        android:id="@+id/resumeClipBtn"
-        android:layout_below="@+id/stopClipBtn"
-        android:layout_alignParentStart="true" />
+    </RelativeLayout>
 
 </RelativeLayout>
