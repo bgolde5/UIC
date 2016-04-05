@@ -5,10 +5,14 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
@@ -16,12 +20,13 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.List;
 
 import me.bradleygolden.Services.AudioService.IAudioService;
 
-public class AudioClient extends Activity {
+public class AudioClientActivity extends Activity {
 
     protected static final String TAG = "AudioServiceUser";
 
@@ -30,6 +35,7 @@ public class AudioClient extends Activity {
 
     private IAudioService mAudioService;
     private boolean mIsBound = false;
+    private boolean mServiceIsRunning = false;
 
     private boolean isStopped = true;
 
@@ -192,6 +198,7 @@ public class AudioClient extends Activity {
 
             // Bind to AudioService
             Intent i = new Intent(IAudioService.class.getName());
+            startService(i);
             b = bindService(i, mConnection, Context.BIND_AUTO_CREATE);
 
             if (b) {
@@ -209,6 +216,7 @@ public class AudioClient extends Activity {
             mAudioService = IAudioService.Stub.asInterface(service);
             Log.e(TAG, "Service connected");
             mIsBound = true;
+            mServiceIsRunning = true;
 
             // Init my custom media player
             songPlayer.setmPlayer(mAudioService);
@@ -218,6 +226,7 @@ public class AudioClient extends Activity {
             Log.e(TAG, "Service disconnected");
             mAudioService = null;
             mIsBound = false;
+            mServiceIsRunning = false;
         }
     };
 
@@ -244,8 +253,55 @@ public class AudioClient extends Activity {
     protected void onStop() {
         super.onStop();
 
-        if(mIsBound) {
+        Log.e(TAG, "onStop");
+
+        if(mIsBound){
             unbindService(mConnection);
+            mIsBound = false;
+            Log.e(TAG, "Service unbound");
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        Log.e(TAG, "onDestroy");
+
+        if (mIsBound){
+            unbindService(mConnection);
+            Log.e(TAG, "Service unbound");
+        }
+
+        if (mServiceIsRunning) {
+            Log.e(TAG, "Service stopped");
+            Intent i = new Intent(IAudioService.class.getName());
+            stopService(i);
+            mServiceIsRunning = false;
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.player_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.history:
+                // Load the history activity
+                Intent intent = new Intent(this, HistoryActivity.class);
+                startActivity(intent);
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
     }
 }

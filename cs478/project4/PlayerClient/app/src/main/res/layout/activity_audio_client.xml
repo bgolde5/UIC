@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="me.bradleygolden.PlayerClient.AudioClient"
+    tools:context=".AudioClientActivity"
     android:orientation="vertical">
 
     <ListView
@@ -11,7 +11,8 @@
         android:layout_height="450dp"
         android:id="@+id/listView"
         android:layout_alignParentTop="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:touchscreenBlocksFocus="false" />
 
     <RelativeLayout
         android:layout_width="wrap_content"
