@@ -16,12 +16,11 @@ import me.bradleygolden.Services.AudioService.IAudioService;
 public class AudioService extends Service {
 
     protected static final String TAG = "AudioServiceServer";
-    private MediaPlayer mediaPlayer;
-
+    private MediaPlayer mediaPlayer = null;
 
     @Override
     public void onCreate() {
-
+        super.onCreate();
     }
 
     @Override
@@ -31,37 +30,51 @@ public class AudioService extends Service {
 
     private final IAudioService.Stub mBinder = new IAudioService.Stub() {
 
-        public void playClip(String clip) throws RemoteException {
+        public void playClip(String clip) {
 
             if (mediaPlayer == null) {
                 // Create a media player with selected song
-                mediaPlayer = MediaPlayer.create(getApplicationContext(), ClipMapping.getResID(clip));
-                mediaPlayer.start();
+                // This gets called when a song gets called when a song gets started for the
+                // first time or after a song was stopped
+                try {
+                    mediaPlayer = MediaPlayer.create(getApplicationContext(), ClipMapping.getResID(clip));
+                    mediaPlayer.start();
+                } catch (Exception e) {
+                    Log.e(TAG, e.getStackTrace().toString());
+                }
+
             } else {
-                // User has selected to replay a song, we don't know if that song is currently
-                // being played or not so we get the song again and replay if the same or different
-                mediaPlayer.release();
-                mediaPlayer = MediaPlayer.create(getApplicationContext(), ClipMapping.getResID(clip));
-                mediaPlayer.start();
+                // The song has been paused and will resume
+                try {
+                    mediaPlayer.start();
+                } catch (Exception e) {
+                    Log.e(TAG, e.getStackTrace().toString());
+                }
             }
         }
 
-        public void pauseClip() throws RemoteException {
+        public void pauseClip() {
             mediaPlayer.pause();
         }
 
-        public void stopClip() throws RemoteException {
-            mediaPlayer.reset();
+        public void stopClip() {
+            mediaPlayer.release();
+            mediaPlayer = null;
         }
 
-        public void resumeClip() throws RemoteException {
+        public void resumeClip() {
             mediaPlayer.start();
+        }
+
+        public boolean isPlaying() {
+            return mediaPlayer.isPlaying();
         }
     };
 
     @Override
     public void onDestroy() {
         super.onDestroy();
+
         mediaPlayer.release();
         mediaPlayer = null;
     }

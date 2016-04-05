@@ -6,4 +6,5 @@ interface IAudioService {
     void stopClip();
     void pauseClip();
     void resumeClip();
+    boolean isPlaying();
 }
