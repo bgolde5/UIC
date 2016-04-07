@@ -5,6 +5,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.pm.ResolveInfo;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -71,7 +72,7 @@ public class AudioClientActivity extends Activity {
         selectedSong = songs.get(0);
 
         // Init my custom media player
-        songPlayer = new SongPlayer();
+        songPlayer = SongPlayer.getInstance();
 
         // Set listener for selecting songs
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -198,6 +199,8 @@ public class AudioClientActivity extends Activity {
 
             // Bind to AudioService
             Intent i = new Intent(IAudioService.class.getName());
+            ResolveInfo info = getPackageManager().resolveService(i, Context.BIND_AUTO_CREATE);
+            i.setComponent(new ComponentName(info.serviceInfo.packageName, info.serviceInfo.name));
             startService(i);
             b = bindService(i, mConnection, Context.BIND_AUTO_CREATE);
 
@@ -268,6 +271,9 @@ public class AudioClientActivity extends Activity {
 
         Log.e(TAG, "onDestroy");
 
+        // Delete any transaction history that already may exist in the service
+        songPlayer.deleteTransactions();
+
         if (mIsBound){
             unbindService(mConnection);
             Log.e(TAG, "Service unbound");
@@ -276,6 +282,9 @@ public class AudioClientActivity extends Activity {
         if (mServiceIsRunning) {
             Log.e(TAG, "Service stopped");
             Intent i = new Intent(IAudioService.class.getName());
+            ResolveInfo info = getPackageManager().resolveService(i, Context.BIND_AUTO_CREATE);
+            i.setComponent(new ComponentName(info.serviceInfo.packageName, info.serviceInfo.name));
+            startService(i);
             stopService(i);
             mServiceIsRunning = false;
         }
@@ -292,7 +301,9 @@ public class AudioClientActivity extends Activity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case R.id.history:
-                // Load the history activity
+                // Load the history activity but first loads the transactions into the songPlayer
+                // before the service unbinds
+                songPlayer.saveTransactions();
                 Intent intent = new Intent(this, HistoryActivity.class);
                 startActivity(intent);
             default:

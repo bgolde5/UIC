@@ -1,6 +1,7 @@
 package me.bradleygolden.PlayerClient;
 
 import android.util.Log;
+import java.util.List;
 
 import me.bradleygolden.Services.AudioService.IAudioService;
 
@@ -10,6 +11,20 @@ import me.bradleygolden.Services.AudioService.IAudioService;
 public class SongPlayer {
 
     private IAudioService mPlayer;
+    private List<String> transactions;
+
+    private static SongPlayer instance = null;
+
+    protected SongPlayer() {
+        // Exists only to defeat instantiation.
+    }
+
+    public static SongPlayer getInstance() {
+        if(instance == null) {
+            instance = new SongPlayer();
+        }
+        return instance;
+    }
 
     public void setmPlayer(IAudioService mPlayer) {
         this.mPlayer = mPlayer;
@@ -52,4 +67,33 @@ public class SongPlayer {
         }
     }
 
+    public List<String> getTransactions(){
+
+        if (transactions != null) {
+            return transactions;
+        }
+
+        try {
+            return mPlayer.getTransactions();
+        } catch (Exception e) {
+            Log.e("getTransactions", e.toString());
+            return null;
+        }
+    }
+
+    public void saveTransactions() {
+        try {
+            transactions = mPlayer.getTransactions();
+        } catch (Exception e) {
+            Log.e("loadTransactions", e.toString());
+        }
+    }
+
+    public void deleteTransactions() {
+        try {
+            mPlayer.clearTransactions();
+        } catch (Exception e) {
+            Log.e("deleteTransactions", e.toString());
+        }
+    }
 }

@@ -7,4 +7,6 @@ interface IAudioService {
     void pauseClip();
     void resumeClip();
     boolean isPlaying();
+    List<String> getTransactions();
+    void clearTransactions();
 }
